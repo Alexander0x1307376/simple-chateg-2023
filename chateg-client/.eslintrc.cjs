@@ -8,6 +8,34 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:react-hooks/recommended',
+    "plugin:react/recommended",
+    "plugin:import/recommended",
+    "plugin:jsx-a11y/recommended",
+    "eslint-config-prettier",
+    "plugin:react/jsx-runtime"
+  ],
+  settings: {
+    react: {
+      version: "detect"
+    },
+    "import/resolver": {
+      node: {
+        paths: [
+          "src"
+        ],
+        extensions: [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
+      }
+    }
+  },
+  ignorePatterns: [
+    '**/*.config.js',
+    '**/*.cjs',
+    '!./src/**/*.config.js'
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -16,7 +44,7 @@ module.exports = {
     project: true,
     tsconfigRootDir: __dirname,
   },
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'prettier'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
