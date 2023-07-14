@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "module": "commonjs",
     "rootDir": "src",
     "outDir": "out",
     "sourceMap": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true ,
-    "experimentalDecorators": true
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["es6", "dom"]
   }
 }

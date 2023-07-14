@@ -15,10 +15,7 @@
       ],
       "args": [
           "${workspaceFolder}\\server\\src\\index.ts"
-      ],
-      "env": {
-        "WS_PORT": "8005"
-      }
+      ]
     }
   ]
 }
