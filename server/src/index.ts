@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import express from "express";
 import { Container, ContainerModule, interfaces } from "inversify";
 import { App } from "./App";
 import { IEnvironmentService } from "./features/config/IEnvironmentService";
@@ -7,8 +6,12 @@ import { TYPES } from "./injectableTypes";
 import { EnvironmentService } from "./features/config/EnvironmentService";
 import { ILogger } from "./features/logger/ILogger";
 import { LoggerService } from "./features/logger/LoggerService";
-import { IMainController } from "./features/common/IMainController";
 import { MainController } from "./features/common/MainController";
+import { DataSource } from "./features/dataSource/DataSource";
+import { AuthController } from "./features/auth/AuthController";
+import { AuthService } from "./features/auth/AuthService";
+import { ExceptionFilter } from "./features/exceptions/ExceptionFilter";
+import { AuthMiddleware } from "./features/auth/AuthMiddleware";
 
 export interface IBootstrapReturn {
   appContainer: Container;
@@ -20,7 +23,17 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
     .to(EnvironmentService)
     .inSingletonScope();
   bind<ILogger>(TYPES.Logger).to(LoggerService).inSingletonScope();
-  bind<IMainController>(TYPES.MainController).to(MainController);
+  bind<DataSource>(TYPES.DataSource).to(DataSource).inSingletonScope();
+  bind<ExceptionFilter>(TYPES.ExceptionFilter)
+    .to(ExceptionFilter)
+    .inSingletonScope();
+  bind<MainController>(TYPES.MainController).to(MainController);
+
+  bind<AuthController>(TYPES.AuthController).to(AuthController);
+  bind<AuthService>(TYPES.AuthService).to(AuthService);
+  bind<AuthMiddleware>(TYPES.AuthMiddleware)
+    .to(AuthMiddleware)
+    .inSingletonScope();
 
   bind<App>(TYPES.Application).to(App);
 });
