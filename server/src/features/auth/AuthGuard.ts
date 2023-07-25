@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IMiddleware } from "../common/IMiddleware";
-import { RequestWithAuthData } from "./types/RequestWithAuthData";
 import ApiError from "../exceptions/ApiError";
+import { RequestWithAuthData } from "./types/requestWithAuthData";
 
 /**
  * AuthGuard проверяет наличие данных пользователя, которые получают из токена в AuthMiddleware

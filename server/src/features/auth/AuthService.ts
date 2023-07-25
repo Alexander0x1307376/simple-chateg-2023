@@ -101,6 +101,7 @@ export class AuthService {
       name: user.name,
     };
     const { accessToken, refreshToken } = this.generateTokens(userData);
+    await this.saveRefreshToken(user.id, refreshToken);
 
     return {
       userData,
@@ -138,14 +139,17 @@ export class AuthService {
         },
       },
     });
+
     if (!authData) throw ApiError.UnauthorizedError();
 
     const userData = {
       id: authData.user.id,
       name: authData.user.name,
     };
+
     const { accessToken, refreshToken: newRefreshToken } =
       this.generateTokens(userData);
+    await this.saveRefreshToken(authData.user.id, newRefreshToken);
 
     return {
       userData,
@@ -186,5 +190,14 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  private async saveRefreshToken(userId: number, refreshToken: string) {
+    console.log("REFPAR", refreshToken);
+    const result = await this.db.auth.update({
+      where: { userId },
+      data: { refreshToken },
+    });
+    console.log("SAVE", result);
   }
 }

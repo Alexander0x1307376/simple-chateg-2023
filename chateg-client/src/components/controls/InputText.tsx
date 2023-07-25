@@ -1,34 +1,24 @@
-import React from "react";
+import React, { InputHTMLAttributes, useId } from "react";
 
-export interface InputTextProps {
-  name: string;
+export interface InputTextProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "className" | "id"> {
   label: string;
-  required?: boolean;
-  htmlType?: "text" | "password" | "email";
-  value?: string;
 }
 
-const InputText: React.FC<InputTextProps> = ({
-  name,
-  label,
-  required,
-  htmlType = "text",
-  value,
-}) => {
+const InputText: React.FC<InputTextProps> = ({ label, ...props }) => {
+  const fieldId = useId();
+
   return (
     <div className="flex flex-col mt-2">
       {label && (
-        <label className="mb-2 text-textSecondary" htmlFor={name}>
+        <label className="mb-2 text-textSecondary" htmlFor={fieldId}>
           {label}
         </label>
       )}
       <input
-        defaultValue={value}
+        id={fieldId}
         className="px-4 py-2 rounded-lg bg-bglighten outline-none bg-black/25"
-        id={name}
-        name={name}
-        required={required}
-        type={htmlType}
+        {...props}
       />
     </div>
   );

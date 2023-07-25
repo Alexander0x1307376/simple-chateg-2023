@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { FC } from "react";
 import VideoRoomItem from "./components/VideoRoomItem";
 import UserItem from "./components/UserItem";
@@ -6,13 +7,12 @@ import Sidebar from "../../components/layouts/Sidebar";
 import { Outlet } from "react-router-dom";
 import {
   IoAddOutline,
-  IoMicOffOutline,
   IoMicOutline,
   IoSettingsOutline,
-  IoVolumeHighOutline,
   IoVolumeMuteOutline,
 } from "react-icons/io5";
 import IconedButton from "../../components/controls/IconedButton";
+import { useAuth } from "../../features/auth/useAuth";
 
 const meetings = [
   {
@@ -77,13 +77,9 @@ const usersOnline = [
   },
 ];
 
-const currentUser = {
-  id: 333,
-  name: "Ordinem",
-  avaUrl: "https://i.pravatar.cc/150?img=15",
-};
-
 const Home: FC = () => {
+  const { authData } = useAuth();
+
   return (
     <div className="flex h-full items-stretch">
       {/* left sidebar */}
@@ -132,7 +128,7 @@ const Home: FC = () => {
             <div className="flex flex-col items-stretch bg-slate-700">
               <div className="flex flex-col py-2 space-x-2 items-stretch">
                 <div className="relative grow">
-                  <UserItem user={currentUser} />
+                  {authData?.userData && <UserItem user={authData?.userData} />}
                 </div>
                 <div className="flex justify-end pr-2">
                   <IconedButton

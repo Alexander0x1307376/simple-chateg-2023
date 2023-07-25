@@ -17,7 +17,7 @@ const UserItem: FC<UserItemProps> = ({
         <Ava size={avaSize} url={avaUrl} label={name} />
       </div>
       <div className="truncate">
-        <span>{name}</span>
+        <span>{name || "unknown user"}</span>
       </div>
     </div>
   );

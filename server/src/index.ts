@@ -12,6 +12,8 @@ import { AuthController } from "./features/auth/AuthController";
 import { AuthService } from "./features/auth/AuthService";
 import { ExceptionFilter } from "./features/exceptions/ExceptionFilter";
 import { AuthMiddleware } from "./features/auth/AuthMiddleware";
+import { UsersController } from "./features/users/UsersController";
+import { UsersService } from "./features/users/UsersService";
 
 export interface IBootstrapReturn {
   appContainer: Container;
@@ -28,6 +30,9 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
     .to(ExceptionFilter)
     .inSingletonScope();
   bind<MainController>(TYPES.MainController).to(MainController);
+
+  bind<UsersController>(TYPES.UsersController).to(UsersController);
+  bind<UsersService>(TYPES.UsersService).to(UsersService);
 
   bind<AuthController>(TYPES.AuthController).to(AuthController);
   bind<AuthService>(TYPES.AuthService).to(AuthService);

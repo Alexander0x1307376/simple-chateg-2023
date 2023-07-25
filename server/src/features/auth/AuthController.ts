@@ -57,6 +57,8 @@ export class AuthController extends BaseController {
     next: NextFunction
   ) {
     const result = await this.authService.login(req.body);
+    console.log("LOGIN>NEW_TOKEN", result.refreshToken);
+
     this.ok(res, result);
   }
 
@@ -70,7 +72,7 @@ export class AuthController extends BaseController {
   async refresh(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers["authorization"];
     const refreshToken = getTokenFromHeader(authHeader);
-    const result = await this.authService.logout(refreshToken);
+    const result = await this.authService.refresh(refreshToken);
     this.ok(res, result);
   }
 }

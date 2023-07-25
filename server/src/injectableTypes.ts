@@ -11,4 +11,7 @@ export const TYPES = {
   AuthService: Symbol.for("AuthService"),
 
   ExceptionFilter: Symbol.for("ExceptionFilter"),
+
+  UsersController: Symbol.for("UsersController"),
+  UsersService: Symbol.for("UsersService"),
 };
