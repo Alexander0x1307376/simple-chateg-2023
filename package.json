@@ -1,0 +1,11 @@
+{
+  "packageManager": "yarn@3.6.1",
+  "private": "true",
+  "name": "simple-chateg-2023",
+  "version": "1.0.0",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  }
+}

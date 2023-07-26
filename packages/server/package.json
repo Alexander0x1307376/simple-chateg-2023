@@ -1,8 +1,9 @@
 {
-  "name": "server",
+  "name": "@simple-chateg-2023/server",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "dev": "ts-node-dev --require dotenv/config --respawn --transpile-only src/index.ts"
   },

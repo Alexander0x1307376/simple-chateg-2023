@@ -11,8 +11,10 @@ import { AuthSystem } from "./features/auth/AuthSystem";
 import { REFRESH_TOKEN_STORAGE_KEY } from "./config/config";
 import { AuthQueryService } from "./features/auth/AuthQueryService";
 import { Mutex } from "async-mutex";
+import { WebsocketSystem } from "./features/webSockets/WebSocketSystem";
 
 const refreshMutex = new Mutex();
+const websocketSystem = new WebsocketSystem("/");
 const authSystem = new AuthSystem(localStorage, REFRESH_TOKEN_STORAGE_KEY);
 const httpClient = new HttpClient("/api", authSystem);
 const authQueryService = new AuthQueryService(

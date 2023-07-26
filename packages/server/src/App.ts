@@ -13,6 +13,7 @@ import { ExceptionFilter } from "./features/exceptions/ExceptionFilter";
 import { json } from "body-parser";
 import { AuthMiddleware } from "./features/auth/AuthMiddleware";
 import { UsersController } from "./features/users/UsersController";
+import { WebSocketSystem } from "./features/webSockets/WebSocketSystem";
 
 @injectable()
 export class App {
@@ -21,6 +22,7 @@ export class App {
   port: number;
   corsOptions: CorsOptions;
   corsOrigin: string;
+  webSocketSystem: WebSocketSystem;
 
   constructor(
     @inject(TYPES.Logger) private logger: ILogger,
@@ -35,6 +37,13 @@ export class App {
   ) {
     this.app = express();
     this.port = parseInt(this.environmentService.get("PORT"));
+    this.webSocketSystem = new WebSocketSystem(
+      this.app,
+      {
+        cors: this.corsOptions,
+      },
+      logger
+    );
 
     this.corsOptions = {
       credentials: true,
@@ -65,9 +74,12 @@ export class App {
     this.useMiddleware();
     this.useRoutes();
 
+    this.webSocketSystem.init();
+
     this.useExeptionFilters();
 
-    this.app.listen(this.port, () => {
+    this.webSocketSystem.wsServer.listen(this.port, () => {
+      // this.app.listen(this.port, () => {
       this.logger.log(
         `[App] API сервер запущен на http://localhost:${this.port}`
       );

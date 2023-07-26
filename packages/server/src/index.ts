@@ -14,6 +14,7 @@ import { ExceptionFilter } from "./features/exceptions/ExceptionFilter";
 import { AuthMiddleware } from "./features/auth/AuthMiddleware";
 import { UsersController } from "./features/users/UsersController";
 import { UsersService } from "./features/users/UsersService";
+import { WebSocketSystem } from "./features/webSockets/WebSocketSystem";
 
 export interface IBootstrapReturn {
   appContainer: Container;

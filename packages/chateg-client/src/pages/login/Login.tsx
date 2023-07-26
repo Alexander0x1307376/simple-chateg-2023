@@ -30,6 +30,7 @@ const Login: FC = () => {
           }}
           onSubmit={async (values) => {
             try {
+              console.log(values);
               await login(values);
               navigate("/");
             } catch (error) {

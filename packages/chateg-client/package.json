@@ -1,5 +1,5 @@
 {
-  "name": "chateg-client",
+  "name": "@simple-chateg-2023/chateg-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",

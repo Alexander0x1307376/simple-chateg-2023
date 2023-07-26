@@ -193,11 +193,9 @@ export class AuthService {
   }
 
   private async saveRefreshToken(userId: number, refreshToken: string) {
-    console.log("REFPAR", refreshToken);
-    const result = await this.db.auth.update({
+    await this.db.auth.update({
       where: { userId },
       data: { refreshToken },
     });
-    console.log("SAVE", result);
   }
 }

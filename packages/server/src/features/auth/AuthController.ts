@@ -8,7 +8,6 @@ import { AuthService } from "./AuthService";
 import { LoggerService } from "../logger/LoggerService";
 import { AuthResponseDto } from "./dto/authResponse.dto";
 import { getTokenFromHeader } from "../../utils/getTokenFromHeader";
-import { AuthGuard } from "./AuthGuard";
 
 @injectable()
 export class AuthController extends BaseController {
@@ -57,8 +56,6 @@ export class AuthController extends BaseController {
     next: NextFunction
   ) {
     const result = await this.authService.login(req.body);
-    console.log("LOGIN>NEW_TOKEN", result.refreshToken);
-
     this.ok(res, result);
   }
 
