@@ -5,7 +5,7 @@ import { AuthService } from "./AuthService";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../injectableTypes";
 import { getTokenFromHeader } from "../../utils/getTokenFromHeader";
-import { RequestWithAuthData } from "./types/RequestWithAuthData";
+import { RequestWithAuthData } from "./types/requestWithAuthData";
 
 /**
  * AuthMiddleware получает заголовок authorization в реквесте,

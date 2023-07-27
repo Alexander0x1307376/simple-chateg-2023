@@ -1,12 +1,12 @@
 import axios from "axios";
 import type { AuthResponse, LoginInput, RegistrationInput } from "./authTypes";
-import { AuthSystem } from "./AuthSystem";
+import { AuthStore } from "./AuthStore";
 import { HttpClient } from "./HttpClient";
 
 export class AuthQueryService {
   constructor(
     private httpClient: HttpClient,
-    private authSystem: AuthSystem,
+    private authSystem: AuthStore,
     private storage: Storage,
     private readonly storageRefreshTokenKey: string
   ) {

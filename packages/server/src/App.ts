@@ -14,6 +14,8 @@ import { json } from "body-parser";
 import { AuthMiddleware } from "./features/auth/AuthMiddleware";
 import { UsersController } from "./features/users/UsersController";
 import { WebSocketSystem } from "./features/webSockets/WebSocketSystem";
+import { AuthService } from "./features/auth/AuthService";
+import { UsersService } from "./features/users/UsersService";
 
 @injectable()
 export class App {
@@ -33,7 +35,9 @@ export class App {
     @inject(TYPES.UsersController) private usersController: UsersController,
     @inject(TYPES.AuthController) private authController: AuthController,
     @inject(TYPES.ExceptionFilter) private exceptionFilter: ExceptionFilter,
-    @inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware
+    @inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
+    @inject(TYPES.AuthService) private authService: AuthService,
+    @inject(TYPES.UsersService) private usersSerivce: UsersService
   ) {
     this.app = express();
     this.port = parseInt(this.environmentService.get("PORT"));
@@ -42,6 +46,8 @@ export class App {
       {
         cors: this.corsOptions,
       },
+      authService,
+      usersSerivce,
       logger
     );
 

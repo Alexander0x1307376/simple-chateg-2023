@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { AuthSystem } from "./AuthSystem";
+import { AuthStore } from "./AuthStore";
 import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
 import type { AuthResponse as AuthData } from "../authTypes";
 
 export class HttpClient {
   private axios: AxiosInstance;
-  private authSystem: AuthSystem;
+  private authSystem: AuthStore;
   private baseUrl: string;
 
-  constructor(baseUrl: string, authSystem: AuthSystem) {
+  constructor(baseUrl: string, authSystem: AuthStore) {
     this.baseUrl = baseUrl;
     this.authSystem = authSystem;
     this.axios = axios.create({

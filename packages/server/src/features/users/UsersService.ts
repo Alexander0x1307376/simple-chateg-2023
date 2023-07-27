@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../injectableTypes";
 import { DataSource } from "../dataSource/DataSource";
@@ -23,5 +23,16 @@ export class UsersService {
   async checkNameUniqueness(name: string): Promise<boolean> {
     const count = await this.db.user.count({ where: { name } });
     return !count;
+  }
+
+  async getUserById(id: number) {
+    return this.db.user.findUnique({
+      select: {
+        id: true,
+        name: true,
+        avaUrl: true,
+      },
+      where: { id },
+    });
   }
 }

@@ -1,0 +1,1 @@
+export const NOT_AUTHORIZED = "NOT_AUTHORIZED";

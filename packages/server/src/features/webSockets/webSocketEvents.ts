@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { UserDto } from "../users/dto/user.dto";
 
 export type ClientToServerEvents = {
   clientOnline: (userId: string) => void;
@@ -9,8 +9,9 @@ export type ClientToServerEvents = {
 };
 
 export type ServerToClientEvents = {
-  userOnline: (userData: User & { socketId: string }) => void;
-  userOffline: (userData: User & { socketId: string }) => void;
+  userOnline: (userData: UserDto) => void;
+  syncState: (data: { usersOnline: UserDto[] }) => void;
+  userOffline: (userData: { userId: number; socketId: string }) => void;
   userJoinsChannel: (userId: number) => void;
   userLeavesChannel: (userId: number) => void;
 };

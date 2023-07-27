@@ -1,21 +1,24 @@
-import { User } from "@prisma/client";
+import { UserDto } from "../users/dto/user.dto";
 
 export class UsersOnlineStore {
-  private users: Map<number, Pick<User, "id" | "name" | "avaUrl">>;
+  private _users: Map<number, UserDto>;
+  get users() {
+    return this._users;
+  }
 
   constructor() {
-    this.users = new Map();
+    this._users = new Map();
   }
 
-  getList() {
-    return this.users;
+  getArray() {
+    return Array.from(this._users, ([_, value]) => value);
   }
 
-  addUser(user: User) {
-    this.users.set(user.id, user);
+  addUser(user: UserDto) {
+    this._users.set(user.id, user);
   }
 
   removeUser(id: number) {
-    this.users.delete(id);
+    this._users.delete(id);
   }
 }

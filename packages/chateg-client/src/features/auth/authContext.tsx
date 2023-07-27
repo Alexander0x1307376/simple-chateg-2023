@@ -1,5 +1,5 @@
 import { FC, ReactNode, createContext, useEffect, useState } from "react";
-import { AuthDataStore, AuthSystem } from "./AuthSystem";
+import { AuthDataStore, AuthStore } from "./AuthStore";
 import { AuthQueryService } from "./AuthQueryService";
 import { LoginInput, RegistrationInput } from "./authTypes";
 
@@ -12,21 +12,21 @@ export interface IAuthContext {
 export const AuthContext = createContext<IAuthContext>({} as IAuthContext);
 
 export interface AuthProviderProps {
-  authSystem: AuthSystem;
+  authStore: AuthStore;
   authQueryService: AuthQueryService;
   children: ReactNode;
 }
 
 const AuthProvider: FC<AuthProviderProps> = ({
   children,
-  authSystem,
+  authStore,
   authQueryService,
 }) => {
-  const [authData, setAuthData] = useState<AuthDataStore>(authSystem.authData);
+  const [authData, setAuthData] = useState<AuthDataStore>(authStore.authData);
 
   useEffect(() => {
-    return authSystem.subscribe(setAuthData);
-  }, [authSystem]);
+    return authStore.subscribe(setAuthData);
+  }, [authStore]);
 
   return (
     <AuthContext.Provider

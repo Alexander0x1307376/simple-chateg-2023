@@ -7,15 +7,18 @@ import MeetingSection from "./pages/home/pages/MeetingSection";
 import AuthProvider from "./features/auth/authContext";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import { HttpClient } from "./features/auth/HttpClient";
-import { AuthSystem } from "./features/auth/AuthSystem";
+import { AuthStore } from "./features/auth/AuthStore";
 import { REFRESH_TOKEN_STORAGE_KEY } from "./config/config";
 import { AuthQueryService } from "./features/auth/AuthQueryService";
 import { Mutex } from "async-mutex";
 import { WebsocketSystem } from "./features/webSockets/WebSocketSystem";
+import { UsersOnlineStore } from "./features/users/UsersOnlineStore";
+import UsersOnlineProvider from "./features/users/usersOnlineContext";
 
 const refreshMutex = new Mutex();
-const websocketSystem = new WebsocketSystem("/");
-const authSystem = new AuthSystem(localStorage, REFRESH_TOKEN_STORAGE_KEY);
+const authSystem = new AuthStore(localStorage, REFRESH_TOKEN_STORAGE_KEY);
+const usersOnlineStore = new UsersOnlineStore();
+const websocketSystem = new WebsocketSystem("/", authSystem, usersOnlineStore);
 const httpClient = new HttpClient("/api", authSystem);
 const authQueryService = new AuthQueryService(
   httpClient,
@@ -29,13 +32,17 @@ const initialRefresh = async () => {
   await authQueryService.refresh();
   refreshMutex.release();
 };
-void initialRefresh();
+void initialRefresh().then(() => {
+  websocketSystem.init();
+});
 
 const router = createBrowserRouter([
   {
     element: (
-      <AuthProvider authSystem={authSystem} authQueryService={authQueryService}>
-        <Outlet />
+      <AuthProvider authStore={authSystem} authQueryService={authQueryService}>
+        <UsersOnlineProvider usersOnlineStore={usersOnlineStore}>
+          <Outlet />
+        </UsersOnlineProvider>
       </AuthProvider>
     ),
     children: [

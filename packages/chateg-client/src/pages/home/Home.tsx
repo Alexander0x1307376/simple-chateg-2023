@@ -5,14 +5,10 @@ import UserItem from "./components/UserItem";
 import { User } from "../../types/entities";
 import Sidebar from "../../components/layouts/Sidebar";
 import { Outlet } from "react-router-dom";
-import {
-  IoAddOutline,
-  IoMicOutline,
-  IoSettingsOutline,
-  IoVolumeMuteOutline,
-} from "react-icons/io5";
+import { IoAddOutline } from "react-icons/io5";
 import IconedButton from "../../components/controls/IconedButton";
-import { useAuth } from "../../features/auth/useAuth";
+import CurrentUserSection from "./components/CurrentUserSection";
+import useUsersOnline from "../../features/users/useUsersOnline";
 
 const meetings = [
   {
@@ -55,30 +51,30 @@ const users: User[] = [
   },
 ];
 
-const usersOnline = [
-  {
-    id: 1,
-    name: "Vasya",
-    avaUrl: "https://i.pravatar.cc/150?img=38",
-  },
-  {
-    id: 2,
-    name: "Abraham Habul Ibn Hassan de El Savlvador",
-    avaUrl: "https://i.pravatar.cc/150?img=37",
-  },
-  {
-    id: 3,
-    name: "Николай иванович",
-  },
-  {
-    id: 4,
-    name: "Pussy Destroyeer",
-    avaUrl: "https://i.pravatar.cc/150?img=35",
-  },
-];
+// const usersOnline = [
+//   {
+//     id: 1,
+//     name: "Vasya",
+//     avaUrl: "https://i.pravatar.cc/150?img=38",
+//   },
+//   {
+//     id: 2,
+//     name: "Abraham Habul Ibn Hassan de El Savlvador",
+//     avaUrl: "https://i.pravatar.cc/150?img=37",
+//   },
+//   {
+//     id: 3,
+//     name: "Николай иванович",
+//   },
+//   {
+//     id: 4,
+//     name: "Pussy Destroyeer",
+//     avaUrl: "https://i.pravatar.cc/150?img=35",
+//   },
+// ];
 
 const Home: FC = () => {
-  const { authData } = useAuth();
+  const { users: usersOnline } = useUsersOnline();
 
   return (
     <div className="flex h-full items-stretch">
@@ -96,7 +92,7 @@ const Home: FC = () => {
             </div>
           }
         >
-          <div className="p-2">пока что нет </div>
+          <div className="p-2">пока что нет</div>
           <ul>
             {meetings.map((item) => (
               <li key={item.id}>
@@ -121,31 +117,10 @@ const Home: FC = () => {
         <Sidebar
           header={
             <div className="p-2">
-              <h2>Пользователи онлайн: 4</h2>
+              <h2>Пользователи онлайн: {usersOnline.length}</h2>
             </div>
           }
-          footer={
-            <div className="flex flex-col items-stretch bg-slate-700">
-              <div className="flex flex-col py-2 space-x-2 items-stretch">
-                <div className="relative grow">
-                  {authData?.userData && <UserItem user={authData?.userData} />}
-                </div>
-                <div className="flex justify-end pr-2">
-                  <IconedButton
-                    size="1.4rem"
-                    icon={IoMicOutline}
-                    // icon={IoMicOffOutline}
-                  />
-                  <IconedButton
-                    size="1.4rem"
-                    icon={IoVolumeMuteOutline}
-                    // icon={IoVolumeHighOutline}
-                  />
-                  <IconedButton size="1.4rem" icon={IoSettingsOutline} />
-                </div>
-              </div>
-            </div>
-          }
+          footer={<CurrentUserSection />}
         >
           <ul>
             {usersOnline.map((item) => (

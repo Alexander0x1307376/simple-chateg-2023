@@ -3,7 +3,7 @@ import type { AuthResponse as AuthData } from "./authTypes";
 
 export type AuthDataStore = AuthData | undefined;
 
-export class AuthSystem implements IStore<AuthDataStore> {
+export class AuthStore implements IStore<AuthDataStore> {
   private _authData: AuthDataStore;
   get authData() {
     return this._authData;

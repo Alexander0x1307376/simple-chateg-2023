@@ -158,6 +158,9 @@ export class AuthService {
     };
   }
 
+  /**
+   * Возвращает payload токена или undefined если токен стух
+   */
   public validateToken(
     token: string,
     tokenType: "access" | "refresh"
