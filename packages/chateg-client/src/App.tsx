@@ -27,13 +27,27 @@ const authQueryService = new AuthQueryService(
   REFRESH_TOKEN_STORAGE_KEY
 );
 
+authSystem.subscribe((authData) => {
+  if (authData && !websocketSystem.isConnected) {
+    websocketSystem.init();
+    websocketSystem.connect();
+  }
+});
+
 const initialRefresh = async () => {
+  console.log("[boot]: App initialization...");
   await refreshMutex.acquire();
   await authQueryService.refresh();
   refreshMutex.release();
 };
 void initialRefresh().then(() => {
-  websocketSystem.init();
+  if (authSystem.authData) {
+    console.log("[boot]: Auth data refreshed. Start socket connection");
+  } else {
+    console.log(
+      "[boot]: No auth data refreshed. Socket connection won't be established"
+    );
+  }
 });
 
 const router = createBrowserRouter([
@@ -79,7 +93,10 @@ const router = createBrowserRouter([
 
 const App: FC = () => {
   return (
-    <div className="h-screen w-screen bg-slate-900 text-slate-300">
+    <div
+      className="h-screen w-screen bg-slate-900 text-slate-300"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       <RouterProvider router={router} />
     </div>
   );

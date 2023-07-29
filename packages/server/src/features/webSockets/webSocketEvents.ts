@@ -1,8 +1,6 @@
 import { UserDto } from "../users/dto/user.dto";
 
 export type ClientToServerEvents = {
-  clientOnline: (userId: string) => void;
-  clientOffline: (userId: string) => void;
   clientJoinsChannel: (userId: string) => void;
   clientLeavesChannel: (userId: string) => void;
   clientCreatesChannel: (channelData: { name: string }) => void;

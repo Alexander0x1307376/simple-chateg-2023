@@ -26,10 +26,6 @@ const UsersOnlineProvider: FC<UsersOnlineProviderProps> = ({
     };
   }, [usersOnlineStore]);
 
-  useEffect(() => {
-    console.log({ users });
-  }, [users]);
-
   return (
     <UsersOnlineContext.Provider value={{ users }}>
       {children}

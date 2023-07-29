@@ -9,6 +9,8 @@ import { IoAddOutline } from "react-icons/io5";
 import IconedButton from "../../components/controls/IconedButton";
 import CurrentUserSection from "./components/CurrentUserSection";
 import useUsersOnline from "../../features/users/useUsersOnline";
+import ContextMenu from "../../features/contextMenu/ContextMenu";
+import { useContextMenu } from "../../features/contextMenu/useContextMenu";
 
 const meetings = [
   {
@@ -51,33 +53,43 @@ const users: User[] = [
   },
 ];
 
-// const usersOnline = [
-//   {
-//     id: 1,
-//     name: "Vasya",
-//     avaUrl: "https://i.pravatar.cc/150?img=38",
-//   },
-//   {
-//     id: 2,
-//     name: "Abraham Habul Ibn Hassan de El Savlvador",
-//     avaUrl: "https://i.pravatar.cc/150?img=37",
-//   },
-//   {
-//     id: 3,
-//     name: "Николай иванович",
-//   },
-//   {
-//     id: 4,
-//     name: "Pussy Destroyeer",
-//     avaUrl: "https://i.pravatar.cc/150?img=35",
-//   },
-// ];
+const contextItems = [
+  {
+    key: "callUser",
+    label: "Позвонить",
+  },
+  {
+    key: "testBtn1",
+    label: "Вторая кнопа",
+  },
+  {
+    key: "testBtn2",
+    label: "Третья кнопа",
+  },
+];
 
 const Home: FC = () => {
   const { users: usersOnline } = useUsersOnline();
 
+  const { menuPosition, handleContextClick, ref } = useContextMenu();
+
+  const handleUserClick = () => {
+    //
+  };
+
+  const handleContextMenuItemClick = (key: string) => {
+    console.log("clicked", key);
+  };
+
   return (
     <div className="flex h-full items-stretch">
+      <ContextMenu
+        ref={ref}
+        onClick={handleContextMenuItemClick}
+        position={menuPosition}
+        items={contextItems}
+      />
+
       {/* left sidebar */}
       <div className="w-60 p-2">
         <Sidebar
@@ -92,18 +104,21 @@ const Home: FC = () => {
             </div>
           }
         >
-          <div className="p-2">пока что нет</div>
-          <ul>
-            {meetings.map((item) => (
-              <li key={item.id}>
-                <VideoRoomItem
-                  roomName={item.name}
-                  roomId={item.id.toString()}
-                  users={users}
-                />
-              </li>
-            ))}
-          </ul>
+          {meetings.length ? (
+            <ul>
+              {meetings.map((item) => (
+                <li key={item.id}>
+                  <VideoRoomItem
+                    roomName={item.name}
+                    roomId={item.id.toString()}
+                    users={users}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="p-2">пока что нет</div>
+          )}
         </Sidebar>
       </div>
       {/* main Content */}
@@ -122,10 +137,15 @@ const Home: FC = () => {
           }
           footer={<CurrentUserSection />}
         >
-          <ul>
+          <ul onContextMenu={handleContextClick}>
             {usersOnline.map((item) => (
               <li key={item.id}>
-                <UserItem user={item} />
+                <button
+                  className="hover:bg-black/25 w-full"
+                  onClick={handleUserClick}
+                >
+                  <UserItem user={item} />
+                </button>
               </li>
             ))}
           </ul>

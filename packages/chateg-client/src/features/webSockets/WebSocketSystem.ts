@@ -12,6 +12,9 @@ export class WebsocketSystem {
   get socket() {
     return this._socket;
   }
+  get isConnected() {
+    return this._socket ? this._socket.connected : false;
+  }
 
   constructor(
     private readonly hostUrl: string,
@@ -19,20 +22,34 @@ export class WebsocketSystem {
     private usersOnlineStore: UsersOnlineStore
   ) {}
 
+  connect() {
+    console.log("[WebsocketSystem]: connecting...");
+    if (this._socket) {
+      this._socket.connect();
+      console.log("[WebsocketSystem]: socket connected");
+    } else {
+      console.warn(
+        "[WebsocketSystem]: The socket hasn't been initialized. Connection won't be established"
+      );
+    }
+  }
+
   init() {
+    console.log("[WebsocketSystem]: initialization");
     const authData = this.authStore.authData;
     const extraHeaders = authData
       ? { Authorization: `Bearer ${authData.accessToken}` }
       : undefined;
 
     this._socket = io({
+      autoConnect: false,
       host: this.hostUrl,
       auth: this.authStore.authData?.userData,
       extraHeaders,
     });
 
     this._socket.on("connect", () => {
-      console.log("socket connected");
+      console.log("[WebsocketSystem]: socket connected");
     });
     this._socket.on("syncState", ({ usersOnline }) => {
       this.usersOnlineStore.set(usersOnline as User[]);

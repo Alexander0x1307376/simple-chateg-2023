@@ -38,11 +38,14 @@ export class WebSocketSystem {
 
     this.socketServer.use((socket, next) => {
       const authHeader = socket.handshake.headers.authorization;
+      const auth = socket.handshake.auth;
+
       const accessToken = getTokenFromHeader(authHeader);
       const payload = this.authService.validateToken(accessToken, "access");
-      if (!payload) {
+      if (!payload || !auth.id) {
         this.logger.error("Сокет-соединение не авторизовано");
         next(new Error(NOT_AUTHORIZED));
+        return;
       }
       return next();
     });
@@ -54,9 +57,13 @@ export class WebSocketSystem {
   init() {
     this.socketServer.on("connection", async (socket: Socket<CTS, STC>) => {
       this.logger.log(`${socket.id} connected`);
+
+      console.log("[INIT]:", socket.handshake.auth);
+
       const user = (await this.usersSerivce.getUserById(
         socket.handshake.auth.id
       )) as UserDto;
+
       this.usersStore.addUser(user);
 
       socket.broadcast.emit("userOnline", user);
@@ -72,12 +79,6 @@ export class WebSocketSystem {
         //
       });
       socket.on("clientLeavesChannel", (userId) => {
-        //
-      });
-      socket.on("clientOnline", (userId) => {
-        //
-      });
-      socket.on("clientOffline", (userId) => {
         //
       });
 

@@ -40,7 +40,7 @@ export class AuthQueryService {
         "[AuthQueryService]: No refresh token. Refetch won't be executed"
       );
       this.authSystem.clear();
-      return;
+      return false;
     }
     try {
       const refreshResponse = await axios.get<AuthResponse>("api/refresh", {
@@ -51,9 +51,11 @@ export class AuthQueryService {
         refreshResponse.data.refreshToken
       );
       this.authSystem.set(refreshResponse.data);
+      return true;
     } catch (e) {
       this.authSystem.clear();
       console.error("[AuthQueryService]: Unauthorized");
+      return false;
     }
   }
 }
