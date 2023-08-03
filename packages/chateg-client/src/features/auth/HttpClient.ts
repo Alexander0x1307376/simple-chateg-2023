@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AuthStore } from "./AuthStore";
 import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
-import type { AuthResponse as AuthData } from "../authTypes";
+import type { AuthResponse as AuthData } from "../auth/authTypes";
 
 export class HttpClient {
   private axios: AxiosInstance;

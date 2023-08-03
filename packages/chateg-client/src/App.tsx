@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
@@ -11,27 +11,48 @@ import { AuthStore } from "./features/auth/AuthStore";
 import { REFRESH_TOKEN_STORAGE_KEY } from "./config/config";
 import { AuthQueryService } from "./features/auth/AuthQueryService";
 import { Mutex } from "async-mutex";
-import { WebsocketSystem } from "./features/webSockets/WebSocketSystem";
 import { UsersOnlineStore } from "./features/users/UsersOnlineStore";
-import UsersOnlineProvider from "./features/users/usersOnlineContext";
+import StoreContextProvider from "./features/store/storeContext";
+import { ChannelsStore } from "./features/channels/ChannelsStore";
+import { RealtimeService } from "./RealtimeService";
+import SocketEmitterProvider from "./features/webSockets/socketEmitterContext";
+import { WebsocketConnection } from "./features/webSockets/WebsocketConnection";
+import { SocketQuerySystem } from "./features/webSockets/SocketQuerySystem";
+import { enableMapSet } from "immer";
+
+enableMapSet();
 
 const refreshMutex = new Mutex();
-const authSystem = new AuthStore(localStorage, REFRESH_TOKEN_STORAGE_KEY);
+
+const authStore = new AuthStore(
+  undefined,
+  localStorage,
+  REFRESH_TOKEN_STORAGE_KEY
+);
 const usersOnlineStore = new UsersOnlineStore();
-const websocketSystem = new WebsocketSystem("/", authSystem, usersOnlineStore);
-const httpClient = new HttpClient("/api", authSystem);
+const channelsStore = new ChannelsStore();
+
+const httpClient = new HttpClient("/api", authStore);
 const authQueryService = new AuthQueryService(
   httpClient,
-  authSystem,
+  authStore,
   localStorage,
   REFRESH_TOKEN_STORAGE_KEY
 );
 
-authSystem.subscribe((authData) => {
-  if (authData && !websocketSystem.isConnected) {
-    websocketSystem.init();
-    websocketSystem.connect();
-  }
+const webSocketConnection = new WebsocketConnection("/");
+const realtimeService = new RealtimeService(usersOnlineStore, channelsStore);
+const socketQuerySystem = new SocketQuerySystem(channelsStore);
+
+authStore.subscribe((authData) => {
+  if (!authData) return;
+  webSocketConnection.connect(authData);
+});
+
+webSocketConnection.subscribe((socket) => {
+  if (!socket) return;
+  realtimeService.bindSocket(socket);
+  socketQuerySystem.initEmitters(socket);
 });
 
 const initialRefresh = async () => {
@@ -41,7 +62,7 @@ const initialRefresh = async () => {
   refreshMutex.release();
 };
 void initialRefresh().then(() => {
-  if (authSystem.authData) {
+  if (authStore.authData) {
     console.log("[boot]: Auth data refreshed. Start socket connection");
   } else {
     console.log(
@@ -52,21 +73,15 @@ void initialRefresh().then(() => {
 
 const router = createBrowserRouter([
   {
-    element: (
-      <AuthProvider authStore={authSystem} authQueryService={authQueryService}>
-        <UsersOnlineProvider usersOnlineStore={usersOnlineStore}>
-          <Outlet />
-        </UsersOnlineProvider>
-      </AuthProvider>
-    ),
     children: [
       {
-        path: "/",
+        path: "/main",
         loader: async () => {
-          await refreshMutex.acquire();
+          console.log("Before mutex");
+          await refreshMutex.waitForUnlock();
+          console.log("After mutex");
           return null;
         },
-        // element: <Home />,
         element: (
           <ProtectedRoute>
             <Home />
@@ -97,7 +112,16 @@ const App: FC = () => {
       className="h-screen w-screen bg-slate-900 text-slate-300"
       onContextMenu={(e) => e.preventDefault()}
     >
-      <RouterProvider router={router} />
+      <AuthProvider authStore={authStore} authQueryService={authQueryService}>
+        <StoreContextProvider
+          usersOnlineStore={usersOnlineStore}
+          channelsStore={channelsStore}
+        >
+          <SocketEmitterProvider socketQuerySystem={socketQuerySystem}>
+            <RouterProvider router={router} />
+          </SocketEmitterProvider>
+        </StoreContextProvider>
+      </AuthProvider>
     </div>
   );
 };

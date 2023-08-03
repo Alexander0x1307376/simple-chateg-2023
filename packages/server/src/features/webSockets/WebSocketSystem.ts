@@ -6,20 +6,24 @@ import {
   ClientToServerEvents as CTS,
   ServerToClientEvents as STC,
 } from "./webSocketEvents";
-import { ChannelsStore } from "./ChannelsStore";
 import { UsersOnlineStore } from "./UsersOnlineStore";
 import { AuthService } from "../auth/AuthService";
 import { getTokenFromHeader } from "../../utils/getTokenFromHeader";
 import { NOT_AUTHORIZED } from "./webSocketErrorMessages";
 import { UsersService } from "../users/UsersService";
 import { UserDto } from "../users/dto/user.dto";
+import { ChannelsStore } from "../channels/ChannelsStore";
+import { ChannelsRealtimeSystem } from "../channels/ChannelsRealtimeSystem";
+import { UsersRealtimeSystem } from "../users/UsersRealtimeSystem";
 
 export class WebSocketSystem {
-  private socketServer: SocketServer<CTS, STC>;
-  private channelsStore: ChannelsStore;
-  private usersStore: UsersOnlineStore;
+  private _socketServer: SocketServer<CTS, STC>;
+  private _channelsStore: ChannelsStore;
+  private _usersStore: UsersOnlineStore;
   private _wsServer: HttpServer;
-  private userService: UsersService;
+  private _channelsRealtimeSystem: ChannelsRealtimeSystem;
+  private _usersRealtimeSystem: UsersRealtimeSystem;
+
   get wsServer() {
     return this._wsServer;
   }
@@ -33,62 +37,50 @@ export class WebSocketSystem {
   ) {
     this._wsServer = createServer(app);
 
-    this.socketServer = new SocketServer(this._wsServer, options);
+    this._socketServer = new SocketServer(this._wsServer, options);
     this.init = this.init.bind(this);
 
-    this.socketServer.use((socket, next) => {
+    this._socketServer.use((socket, next) => {
       const authHeader = socket.handshake.headers.authorization;
       const auth = socket.handshake.auth;
 
       const accessToken = getTokenFromHeader(authHeader);
       const payload = this.authService.validateToken(accessToken, "access");
       if (!payload || !auth.id) {
-        this.logger.error("Сокет-соединение не авторизовано");
+        this.logger.error(
+          "[WebSocketSystem]: Сокет-соединение не авторизовано"
+        );
         next(new Error(NOT_AUTHORIZED));
         return;
       }
       return next();
     });
 
-    this.usersStore = new UsersOnlineStore();
-    this.channelsStore = new ChannelsStore();
+    this._usersStore = new UsersOnlineStore();
+    this._channelsStore = new ChannelsStore();
+
+    this._usersRealtimeSystem = new UsersRealtimeSystem(
+      this._socketServer,
+      this._usersStore,
+      this.logger
+    );
+    this._channelsRealtimeSystem = new ChannelsRealtimeSystem(
+      this._socketServer,
+      this._channelsStore
+    );
   }
 
   init() {
-    this.socketServer.on("connection", async (socket: Socket<CTS, STC>) => {
-      this.logger.log(`${socket.id} connected`);
-
-      console.log("[INIT]:", socket.handshake.auth);
-
+    this._socketServer.on("connection", async (socket: Socket<CTS, STC>) => {
       const user = (await this.usersSerivce.getUserById(
         socket.handshake.auth.id
       )) as UserDto;
 
-      this.usersStore.addUser(user);
+      this._usersRealtimeSystem.handleConnection(socket, user);
+      this._channelsRealtimeSystem.handleConnection(socket, user);
 
-      socket.broadcast.emit("userOnline", user);
       socket.emit("syncState", {
-        usersOnline: this.usersStore.getArray(),
-      });
-
-      socket.on("clientCreatesChannel", (date) => {
-        const channelRoom = "channel_" + Date.now();
-        socket.join(channelRoom);
-      });
-      socket.on("clientJoinsChannel", (userId) => {
-        //
-      });
-      socket.on("clientLeavesChannel", (userId) => {
-        //
-      });
-
-      socket.on("disconnect", (reason: any) => {
-        this.logger.log(`${socket.id} disconnected`);
-        this.usersStore.removeUser(user.id);
-        this.socketServer.emit("userOffline", {
-          userId: user.id,
-          socketId: socket.id,
-        });
+        usersOnline: this._usersStore.getArray(),
       });
     });
   }

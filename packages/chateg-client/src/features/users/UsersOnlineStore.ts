@@ -1,40 +1,36 @@
+import { produce } from "immer";
 import { User } from "../../types/entities";
-import { IStore } from "../utils/IStore";
+import { BaseStore } from "../store/BaseStore";
 
-export type UsersStore = User[];
+// export type UsersStore = User[];
+export type UsersData = Map<number, User>;
 
-export class UsersOnlineStore implements IStore<UsersStore> {
-  private _usersStore: UsersStore;
-  private subscriptions: ((data: UsersStore) => void)[];
-
-  constructor() {
-    this._usersStore = [];
-    this.subscriptions = [];
-
-    this.update = this.update.bind(this);
-    this.set = this.set.bind(this);
-    this.subscribe = this.subscribe.bind(this);
-    this.emit = this.emit.bind(this);
+export class UsersOnlineStore extends BaseStore<UsersData> {
+  constructor(init: UsersData | undefined = undefined) {
+    const initStore = init ? init : (new Map() as UsersData);
+    super(initStore);
+    this.addUser = this.addUser.bind(this);
   }
 
-  update(callback: (prev: UsersStore) => UsersStore) {
-    this.set(callback(this._usersStore));
+  setUsers(user: User[]) {
+    const newMap = new Map(user.map((item) => [item.id, item]));
+    this.set(newMap);
   }
 
-  set(value: UsersStore) {
-    this._usersStore = value;
-    this.emit(value);
+  addUser(user: User) {
+    this.update((store) => {
+      store.set(user.id, user);
+    });
   }
 
-  subscribe(subscription: (value: UsersStore) => void) {
-    this.subscriptions.push(subscription);
-    subscription(this._usersStore);
-    return () => {
-      this.subscriptions.splice(this.subscriptions.indexOf(subscription), 1);
-    };
+  removeUser(userId: number) {
+    this.update((store) => {
+      store.delete(userId);
+    });
   }
 
-  private emit(value: UsersStore) {
-    this.subscriptions.forEach((subscription) => subscription(value));
+  update(callback: (prev: UsersData) => void) {
+    const result = produce(this._store, callback);
+    this.set(result);
   }
 }

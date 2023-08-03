@@ -8,5 +8,5 @@ export interface ProtectedRouteProps {
 
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   const { authData } = useAuth();
-  return authData ? children : <Navigate to="/login" />;
+  return authData ? children : <Navigate to="/login" replace />;
 };

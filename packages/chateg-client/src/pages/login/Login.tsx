@@ -32,7 +32,7 @@ const Login: FC = () => {
             try {
               console.log(values);
               await login(values);
-              navigate("/");
+              navigate("/main", { replace: true });
             } catch (error) {
               setLoginError((error as object).toString());
               console.error(error);
