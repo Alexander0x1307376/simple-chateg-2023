@@ -5,7 +5,7 @@ import {
 } from "@simple-chateg-2023/server/src/features/webSockets/webSocketEvents";
 import { BaseEmitter } from "../webSockets/BaseEmitter";
 import { ChannelsStore } from "./ChannelsStore";
-import { ChannelDto } from "@simple-chateg-2023/server/src/features/channels/ChannelDto";
+import { Channel } from "../../types/entities";
 
 export class ChannelsSocketEmitter extends BaseEmitter {
   constructor(
@@ -16,14 +16,14 @@ export class ChannelsSocketEmitter extends BaseEmitter {
   }
 
   createChannel(name: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<Channel>((resolve, reject) => {
       this.socket.emit(
         "clientCreatesChannel",
         { name },
         ({ data, status, error }) => {
           if (status === "ok") {
-            this.channelsStore.addChannel(data as ChannelDto);
-            resolve(data);
+            this.channelsStore.addChannel(data);
+            resolve(data as Channel);
             return;
           } else if (status === "error" && error) {
             reject(error);

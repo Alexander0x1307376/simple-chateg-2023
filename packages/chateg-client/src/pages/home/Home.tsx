@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { FC, useState } from "react";
-import VideoRoomItem from "./components/VideoRoomItem";
 import UserItem from "./components/UserItem";
-import { User } from "../../types/entities";
 import Sidebar from "../../components/layouts/Sidebar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { IoAddOutline } from "react-icons/io5";
 import IconedButton from "../../components/controls/IconedButton";
 import CurrentUserSection from "./components/CurrentUserSection";
@@ -13,47 +11,7 @@ import ContextMenu from "../../features/contextMenu/ContextMenu";
 import { useContextMenu } from "../../features/contextMenu/useContextMenu";
 import CreateChannel from "./components/CreateChannel";
 import VideoRoomsList from "./components/VideoRoomsList";
-
-// const meetings = [
-//   {
-//     id: 1,
-//     name: "Конфа 1",
-//   },
-//   {
-//     id: 2,
-//     name: "Конфа 2",
-//   },
-//   {
-//     id: 3,
-//     name: "Конфа 3",
-//   },
-//   {
-//     id: 4,
-//     name: "Конфа 4",
-//   },
-// ];
-
-// const users: User[] = [
-//   {
-//     id: 1,
-//     name: "Vasya",
-//     avaUrl: "https://i.pravatar.cc/150?img=38",
-//   },
-//   {
-//     id: 2,
-//     name: "Abraham Habul Ibn Hassan de El Savlvador",
-//     avaUrl: "https://i.pravatar.cc/150?img=37",
-//   },
-//   {
-//     id: 3,
-//     name: "Николай иванович",
-//   },
-//   {
-//     id: 4,
-//     name: "Pussy Destroyeer",
-//     avaUrl: "https://i.pravatar.cc/150?img=35",
-//   },
-// ];
+import { useSocketEmitters } from "../../features/webSockets/useSoketEmitters";
 
 const contextItems = [
   {
@@ -71,9 +29,17 @@ const contextItems = [
 ];
 
 const Home: FC = () => {
-  const { users: usersOnline, channels } = useStore();
-
+  const { users: usersOnline } = useStore();
   const { menuPosition, handleContextClick, ref } = useContextMenu();
+  const { channelEmitter } = useSocketEmitters();
+  const navigate = useNavigate();
+
+  const handleCreateChannel = async (values: { name: string }) => {
+    const result = await channelEmitter.createChannel(values.name);
+    console.log(result);
+    setIsCreateChannelModalVisible(false);
+    navigate(result.id);
+  };
 
   const handleUserClick = () => {
     //
@@ -86,10 +52,6 @@ const Home: FC = () => {
   const [isCreateChannelModalVisible, setIsCreateChannelModalVisible] =
     useState<boolean>(false);
 
-  const handleCreateChannel = () => {
-    setIsCreateChannelModalVisible(true);
-  };
-
   return (
     <>
       <ContextMenu
@@ -100,9 +62,8 @@ const Home: FC = () => {
       />
       <CreateChannel
         isVisible={isCreateChannelModalVisible}
-        onClose={() => {
-          setIsCreateChannelModalVisible(false);
-        }}
+        onClose={() => setIsCreateChannelModalVisible(false)}
+        onCreateClick={handleCreateChannel}
       />
       <div className="flex h-full items-stretch">
         {/* left sidebar */}
@@ -117,33 +78,18 @@ const Home: FC = () => {
                   <IconedButton
                     size="1.4rem"
                     icon={IoAddOutline}
-                    onClick={handleCreateChannel}
+                    onClick={() => setIsCreateChannelModalVisible(true)}
                   />
                 </div>
               </div>
             }
           >
             <VideoRoomsList />
-            {/* {channels.length ? (
-              <ul>
-                {channels.map((item) => (
-                  <li key={item.id}>
-                    <VideoRoomItem
-                      roomName={item.name}
-                      roomId={item.id.toString()}
-                      members={users}
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-2">пока что нет</div>
-            )} */}
           </Sidebar>
         </div>
         {/* main Content */}
-        <div className="grow flex flex-col">
-          <div className="h-full">
+        <div className="relative grow flex flex-col">
+          <div className="absolute inset-0 overflow-auto">
             <Outlet />
           </div>
         </div>

@@ -91,6 +91,17 @@ const router = createBrowserRouter([
           {
             path: ":meetingId",
             element: <MeetingSection />,
+            loader: (args) => {
+              const emitter = socketQuerySystem.emitters?.channelEmitter;
+              const meetingId = args.params?.meetingId;
+              const channel = channelsStore.store.get(meetingId!);
+              const isOwner = channel?.ownerId === authStore.store?.userData.id;
+
+              if (emitter && meetingId && !isOwner) {
+                emitter.joinChannel(meetingId);
+              }
+              return null;
+            },
           },
         ],
       },

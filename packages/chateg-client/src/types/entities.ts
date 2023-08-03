@@ -7,7 +7,7 @@ export type User = {
 export type Channel = {
   id: string;
   name: string;
-  members: number[];
+  members?: number[];
 };
 
 export type ChannelData = {

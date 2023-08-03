@@ -3,7 +3,11 @@ import { BaseStore } from "../store/BaseStore";
 import { ChannelsSocketEmitter } from "../channels/ChannelsSocketEmitter";
 import { ChannelsStore } from "../channels/ChannelsStore";
 
-export class SocketQuerySystem extends BaseStore {
+export type Emitters = {
+  channelEmitter: ChannelsSocketEmitter;
+};
+
+export class SocketQuerySystem extends BaseStore<Emitters | undefined> {
   constructor(private channelsStore: ChannelsStore) {
     super(undefined);
   }
@@ -14,5 +18,9 @@ export class SocketQuerySystem extends BaseStore {
     };
 
     this.set(emitters);
+  }
+
+  get emitters() {
+    return this._store;
   }
 }

@@ -2,13 +2,12 @@ import {
   FC,
   ReactNode,
   createContext,
-  useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
 import { UsersOnlineStore, UsersData } from "../users/UsersOnlineStore";
-import { User, Channel, ChannelData } from "../../types/entities";
+import { User, ChannelData } from "../../types/entities";
 import { ChannelsData, ChannelsStore } from "../channels/ChannelsStore";
 
 export interface IStoreContext {
@@ -38,7 +37,8 @@ const StoreContextProvider: FC<UsersOnlineProviderProps> = ({
 
   const channelsArray = useMemo(() => {
     return users && channels
-      ? Array.from(channels, ([_, channel]) => {
+      ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        Array.from(channels, ([_, channel]) => {
           const owner = users.get(channel.ownerId);
           if (!owner) throw new Error(`No user with ${channel.ownerId} found`);
           const members = Array.from(channel.members).map((memberId) => {
@@ -72,46 +72,5 @@ const StoreContextProvider: FC<UsersOnlineProviderProps> = ({
     </StoreContext.Provider>
   );
 };
-// const StoreContextProvider: FC<UsersOnlineProviderProps> = ({
-//   children,
-//   usersOnlineStore,
-//   channelsStore,
-// }) => {
-//   const [users, setUsers] = useState<User[]>([]);
-//   const [channels, setChannels] = useState<Channel[]>([]);
-//   const [channelsData, setChannelsData] = useState<ChannelData[]>([]);
-
-//   useEffect(() => {
-//     const unsubscribe = usersOnlineStore.subscribe((store) => {
-//       const result = Array.from(store, (item) => item[1]);
-//       setUsers(result);
-//     });
-//     return () => {
-//       unsubscribe();
-//     };
-//   }, [usersOnlineStore]);
-
-//   useEffect(() => {
-//     const unsubscribe = channelsStore.subscribe((store) => {
-//       const result = Array.from(store, (item) => {
-//         const value = item[1];
-//         return {
-//           ...value,
-//           members: Array.from(value.members),
-//         };
-//       });
-//       setChannels(result);
-//     });
-//     return () => {
-//       unsubscribe();
-//     };
-//   }, [channelsStore]);
-
-//   return (
-//     <StoreContext.Provider value={{ users, channels }}>
-//       {children}
-//     </StoreContext.Provider>
-//   );
-// };
 
 export default StoreContextProvider;
