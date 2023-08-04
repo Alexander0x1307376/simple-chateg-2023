@@ -2,16 +2,16 @@
 import { Socket } from "socket.io-client";
 
 export abstract class BaseWebSocketHandler {
-  constructor(protected socket: Socket) {
+  constructor() {
     this.bindHandlers = this.bindHandlers.bind(this);
   }
 
   protected bindHandlers<
     ListenEvents extends Record<string, (...args: any) => void>,
-  >(handlers: ListenEvents) {
+  >(socket: Socket, handlers: ListenEvents) {
     for (const key in handlers) {
       const handler = handlers[key];
-      if (handler) this.socket.on(key as string, handler);
+      if (handler) socket.on(key as string, handler);
     }
   }
 }

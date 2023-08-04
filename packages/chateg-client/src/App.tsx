@@ -6,43 +6,24 @@ import Register from "./pages/register/Register";
 import MeetingSection from "./pages/home/pages/MeetingSection";
 import AuthProvider from "./features/auth/authContext";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
-import { HttpClient } from "./features/auth/HttpClient";
-import { AuthStore } from "./features/auth/AuthStore";
-import { REFRESH_TOKEN_STORAGE_KEY } from "./config/config";
-import { AuthQueryService } from "./features/auth/AuthQueryService";
 import { Mutex } from "async-mutex";
-import { UsersOnlineStore } from "./features/users/UsersOnlineStore";
 import StoreContextProvider from "./features/store/storeContext";
-import { ChannelsStore } from "./features/channels/ChannelsStore";
-import { RealtimeService } from "./RealtimeService";
 import SocketEmitterProvider from "./features/webSockets/socketEmitterContext";
-import { WebsocketConnection } from "./features/webSockets/WebsocketConnection";
-import { SocketQuerySystem } from "./features/webSockets/SocketQuerySystem";
 import { enableMapSet } from "immer";
+import { bootstrap } from "./depcontainer/container";
 
 enableMapSet();
 
 const refreshMutex = new Mutex();
-
-const authStore = new AuthStore(
-  undefined,
-  localStorage,
-  REFRESH_TOKEN_STORAGE_KEY
-);
-const usersOnlineStore = new UsersOnlineStore();
-const channelsStore = new ChannelsStore();
-
-const httpClient = new HttpClient("/api", authStore);
-const authQueryService = new AuthQueryService(
-  httpClient,
+const {
   authStore,
-  localStorage,
-  REFRESH_TOKEN_STORAGE_KEY
-);
-
-const webSocketConnection = new WebsocketConnection("/");
-const realtimeService = new RealtimeService(usersOnlineStore, channelsStore);
-const socketQuerySystem = new SocketQuerySystem(channelsStore);
+  webSocketConnection,
+  realtimeService,
+  socketQuerySystem,
+  authQueryService,
+  channelsStore,
+  usersOnlineStore,
+} = bootstrap();
 
 authStore.subscribe((authData) => {
   if (!authData) return;

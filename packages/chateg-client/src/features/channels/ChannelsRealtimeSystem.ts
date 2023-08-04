@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import {
-  ClientToServerEvents as CTS,
+  // ClientToServerEvents as CTS,
   ServerToClientEvents as STC,
 } from "@simple-chateg-2023/server/src/features/webSockets/webSocketEvents";
 import { BaseWebSocketHandler } from "../webSockets/BaseWebSocketHandler";
@@ -13,16 +13,13 @@ type ChannelEvents = Pick<
 >;
 
 export class ChannelsRealtimeSystem extends BaseWebSocketHandler {
-  constructor(
-    socket: Socket<STC, CTS>,
-    private channelsStore: ChannelsStore
-  ) {
-    super(socket);
+  constructor(private channelsStore: ChannelsStore) {
+    super();
     this.init = this.init.bind(this);
   }
 
-  init() {
-    this.bindHandlers<ChannelEvents>({
+  init(socket: Socket) {
+    this.bindHandlers<ChannelEvents>(socket, {
       channelCreated: (channel: ChannelDto) => {
         console.log("CHANNEL_CREATED");
         this.channelsStore.addChannel(channel);

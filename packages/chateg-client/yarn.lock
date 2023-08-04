@@ -400,7 +400,6 @@ __metadata:
     eslint-plugin-react-refresh: ^0.4.1
     formik: ^2.4.2
     immer: ^10.0.2
-    inversify: ^6.0.1
     postcss: ^8.4.25
     prettier: ^3.0.0
     react: ^18.2.0
@@ -2611,13 +2610,6 @@ __metadata:
     has: ^1.0.3
     side-channel: ^1.0.4
   checksum: 97e84046bf9e7574d0956bd98d7162313ce7057883b6db6c5c7b5e5f05688864b0978ba07610c726d15d66544ffe4b1050107d93f8a39ebc59b15d8b429b497a
-  languageName: node
-  linkType: hard
-
-"inversify@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "inversify@npm:6.0.1"
-  checksum: b6c9b56ef7817a71534b06101c2b0a0130b67c47a769f58794d9c0643591a83ac02be30a48c00cb729c0c83ece96dde369c419d48c32d0201c6cc7407629fbc5
   languageName: node
   linkType: hard
 

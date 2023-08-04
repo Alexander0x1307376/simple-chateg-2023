@@ -7,12 +7,15 @@ import type { AuthResponse as AuthData } from "../auth/authTypes";
 
 export class HttpClient {
   private axios: AxiosInstance;
-  private authSystem: AuthStore;
+
   private baseUrl: string;
 
-  constructor(baseUrl: string, authSystem: AuthStore) {
+  constructor(
+    baseUrl: string,
+    private authStore: AuthStore
+  ) {
     this.baseUrl = baseUrl;
-    this.authSystem = authSystem;
+    this.authStore = authStore;
     this.axios = axios.create({
       baseURL: this.baseUrl,
       withCredentials: true,
@@ -20,7 +23,7 @@ export class HttpClient {
 
     this.axios.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${
-        authSystem.authData?.accessToken || ""
+        authStore.authData?.accessToken || ""
       }`;
       return config;
     });
@@ -43,10 +46,10 @@ export class HttpClient {
                 withCredentials: true,
               }
             );
-            this.authSystem.set(response.data);
+            this.authStore.set(response.data);
             return this.axios.request(originalRequest);
           } catch (e) {
-            this.authSystem.clear();
+            this.authStore.clear();
             console.error("Unauthorized!!!");
           }
         }

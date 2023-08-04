@@ -2,7 +2,6 @@ import { produce } from "immer";
 import { User } from "../../types/entities";
 import { BaseStore } from "../store/BaseStore";
 
-// export type UsersStore = User[];
 export type UsersData = Map<number, User>;
 
 export class UsersOnlineStore extends BaseStore<UsersData> {
