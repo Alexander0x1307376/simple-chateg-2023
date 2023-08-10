@@ -1,6 +1,4 @@
-import { UsersOnlineStore } from "../features/users/UsersOnlineStore";
 import { AuthStore } from "../features/auth/AuthStore";
-import { ChannelsStore } from "../features/channels/ChannelsStore";
 import { HttpClient } from "../features/auth/HttpClient";
 import { AuthQueryService } from "../features/auth/AuthQueryService";
 import { WebsocketConnection } from "../features/webSockets/WebsocketConnection";
@@ -9,6 +7,8 @@ import { RealtimeService } from "../RealtimeService";
 import { UsersRealtimeSystem } from "../features/users/UsersRealtimeSystem";
 import { ChannelsRealtimeSystem } from "../features/channels/ChannelsRealtimeSystem";
 import { REFRESH_TOKEN_STORAGE_KEY } from "../config/config";
+import { GeneralStore } from "../features/store/GeneralStore";
+import { GeneralRealtimeSystem } from "../features/store/GeneralRealtimeSystem";
 
 export const bootstrap = () => {
   const authStore = new AuthStore(
@@ -16,8 +16,7 @@ export const bootstrap = () => {
     localStorage,
     REFRESH_TOKEN_STORAGE_KEY
   );
-  const channelsStore = new ChannelsStore();
-  const usersOnlineStore = new UsersOnlineStore();
+  const store = new GeneralStore();
 
   const httpClient = new HttpClient("/api", authStore);
   const authQueryService = new AuthQueryService(
@@ -28,18 +27,22 @@ export const bootstrap = () => {
   );
 
   const webSocketConnection = new WebsocketConnection("/");
-  const userRealtimeSystem = new UsersRealtimeSystem(usersOnlineStore);
-  const channelsRealtimeSystem = new ChannelsRealtimeSystem(channelsStore);
+
+  const generalRealtimeSystem = new GeneralRealtimeSystem(store);
+  const userRealtimeSystem = new UsersRealtimeSystem(store);
+  const channelsRealtimeSystem = new ChannelsRealtimeSystem(store);
+
   const realtimeService = new RealtimeService(
+    generalRealtimeSystem,
     userRealtimeSystem,
     channelsRealtimeSystem
   );
-  const socketQuerySystem = new SocketQuerySystem(channelsStore);
+
+  const socketQuerySystem = new SocketQuerySystem(store);
 
   return {
     authStore,
-    channelsStore,
-    usersOnlineStore,
+    store,
     httpClient,
     authQueryService,
     webSocketConnection,

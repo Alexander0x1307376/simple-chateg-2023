@@ -4,15 +4,16 @@ export type User = {
   avaUrl?: string;
 };
 
-export type Channel = {
+export type ChannelTransfer = {
   id: string;
   name: string;
-  members?: number[];
+  ownerId: number;
+  members: number[];
 };
 
 export type ChannelData = {
   id: string;
   name: string;
-  owner: User;
+  ownerId: number;
   members: User[];
 };

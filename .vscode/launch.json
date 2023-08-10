@@ -5,16 +5,23 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "chrome",
+      "request": "launch",
+      "name": "client-app",
+      "url": "https://localhost:3051",
+      "webRoot": "${workspaceFolder}\\packages\\chateg-client"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "TS-Node (launch)",
-      "localRoot": "${workspaceFolder}\\server",
+      "localRoot": "${workspaceFolder}\\packages\\server",
       "runtimeArgs": [
           "-r",
           "ts-node/register"
       ],
       "args": [
-          "${workspaceFolder}\\server\\src\\index.ts"
+          "${workspaceFolder}\\packages\\server\\src\\index.ts"
       ]
     }
   ]

@@ -6,9 +6,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import { UsersOnlineStore, UsersData } from "../users/UsersOnlineStore";
 import { User, ChannelData } from "../../types/entities";
-import { ChannelsData, ChannelsStore } from "../channels/ChannelsStore";
+import { GeneralStore, State } from "./GeneralStore";
 
 export interface IStoreContext {
   users: User[];
@@ -18,51 +17,40 @@ export interface IStoreContext {
 export const StoreContext = createContext<IStoreContext>({} as IStoreContext);
 
 export interface UsersOnlineProviderProps {
-  usersOnlineStore: UsersOnlineStore;
-  channelsStore: ChannelsStore;
+  generalStore: GeneralStore;
   children: ReactNode;
 }
 
 const StoreContextProvider: FC<UsersOnlineProviderProps> = ({
   children,
-  usersOnlineStore,
-  channelsStore,
+  generalStore,
 }) => {
-  const [users, setUsers] = useState<UsersData>();
-  const [channels, setChannels] = useState<ChannelsData>();
+  const [store, setStore] = useState<State>(generalStore.store);
+
+  useEffect(() => {
+    return generalStore.subscribe(setStore);
+  }, [generalStore]);
 
   const usersArray = useMemo(() => {
-    return users ? Array.from(users, (item) => item[1]) : [];
-  }, [users]);
+    return store.users.ids.map((userId) => store.users.list[userId]);
+  }, [store]);
 
-  const channelsArray = useMemo(() => {
-    return users && channels
-      ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        Array.from(channels, ([_, channel]) => {
-          const owner = users.get(channel.ownerId);
-          if (!owner) throw new Error(`No user with ${channel.ownerId} found`);
-          const members = Array.from(channel.members).map((memberId) => {
-            const user = users.get(memberId);
-            if (!user) throw new Error(`No user with ${memberId} found`);
-            return user;
-          });
-          return {
-            id: channel.id,
-            name: channel.name,
-            owner,
-            members,
-          };
-        })
-      : [];
-  }, [channels, users]);
+  const channelsArray: ChannelData[] = useMemo(() => {
+    const users = store.users.list;
+    const channels = store.channels.list;
+    const channelIds = store.channels.ids;
 
-  useEffect(() => {
-    return usersOnlineStore.subscribe(setUsers);
-  }, [usersOnlineStore]);
-
-  useEffect(() => {
-    return channelsStore.subscribe(setChannels);
-  }, [channelsStore]);
+    return channelIds.map((channelId) => {
+      const channel = channels[channelId];
+      const members = channel.members.map((userId) => users[userId]);
+      return {
+        id: channel.id,
+        name: channel.name,
+        ownerId: channel.ownerId,
+        members,
+      } as ChannelData;
+    });
+  }, [store]);
 
   return (
     <StoreContext.Provider

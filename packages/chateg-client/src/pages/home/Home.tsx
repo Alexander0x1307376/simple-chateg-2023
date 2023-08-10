@@ -35,8 +35,9 @@ const Home: FC = () => {
   const navigate = useNavigate();
 
   const handleCreateChannel = async (values: { name: string }) => {
+    console.log("handleCreateChannel!");
     const result = await channelEmitter.createChannel(values.name);
-    console.log(result);
+    console.log("RESULT", result);
     setIsCreateChannelModalVisible(false);
     navigate(result.id);
   };
@@ -49,8 +50,7 @@ const Home: FC = () => {
     console.log("clicked", key);
   };
 
-  const [isCreateChannelModalVisible, setIsCreateChannelModalVisible] =
-    useState<boolean>(false);
+  const [isCreateChannelModalVisible, setIsCreateChannelModalVisible] = useState<boolean>(false);
 
   return (
     <>
@@ -106,10 +106,7 @@ const Home: FC = () => {
             <ul onContextMenu={handleContextClick}>
               {usersOnline.map((item) => (
                 <li key={item.id}>
-                  <button
-                    className="hover:bg-black/25 w-full"
-                    onClick={handleUserClick}
-                  >
+                  <button className="hover:bg-black/25 w-full" onClick={handleUserClick}>
                     <UserItem user={item} />
                   </button>
                 </li>

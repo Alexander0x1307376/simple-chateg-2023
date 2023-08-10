@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, redirect, RouterProvider } from "react-router-dom";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
@@ -21,8 +21,7 @@ const {
   realtimeService,
   socketQuerySystem,
   authQueryService,
-  channelsStore,
-  usersOnlineStore,
+  store,
 } = bootstrap();
 
 authStore.subscribe((authData) => {
@@ -46,9 +45,7 @@ void initialRefresh().then(() => {
   if (authStore.authData) {
     console.log("[boot]: Auth data refreshed. Start socket connection");
   } else {
-    console.log(
-      "[boot]: No auth data refreshed. Socket connection won't be established"
-    );
+    console.log("[boot]: No auth data refreshed. Socket connection won't be established");
   }
 });
 
@@ -56,11 +53,11 @@ const router = createBrowserRouter([
   {
     children: [
       {
-        path: "/main",
+        path: "/",
         loader: async () => {
-          console.log("Before mutex");
+          console.log(`[route-loader "/"]: Before mutex`);
           await refreshMutex.waitForUnlock();
-          console.log("After mutex");
+          console.log(`[route-loader "/"]: After mutex`);
           return null;
         },
         element: (
@@ -70,16 +67,20 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: ":meetingId",
+            path: ":channelId",
             element: <MeetingSection />,
-            loader: (args) => {
+            loader: async (args) => {
+              await refreshMutex.waitForUnlock();
               const emitter = socketQuerySystem.emitters?.channelEmitter;
-              const meetingId = args.params?.meetingId;
-              const channel = channelsStore.store.get(meetingId!);
-              const isOwner = channel?.ownerId === authStore.store?.userData.id;
-
-              if (emitter && meetingId && !isOwner) {
-                emitter.joinChannel(meetingId);
+              const channelId = args.params?.channelId;
+              if (emitter && channelId) {
+                console.log(`[route-loader "/:channelId"]: joining channel ${channelId} `);
+                try {
+                  await emitter.joinChannel(channelId);
+                } catch (e) {
+                  console.warn(`[route-loader "/:channelId"]:error:`, e as string);
+                  return redirect("/");
+                }
               }
               return null;
             },
@@ -105,10 +106,7 @@ const App: FC = () => {
       onContextMenu={(e) => e.preventDefault()}
     >
       <AuthProvider authStore={authStore} authQueryService={authQueryService}>
-        <StoreContextProvider
-          usersOnlineStore={usersOnlineStore}
-          channelsStore={channelsStore}
-        >
+        <StoreContextProvider generalStore={store}>
           <SocketEmitterProvider socketQuerySystem={socketQuerySystem}>
             <RouterProvider router={router} />
           </SocketEmitterProvider>

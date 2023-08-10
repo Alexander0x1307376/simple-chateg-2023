@@ -43,7 +43,7 @@ export class AuthQueryService {
       return false;
     }
     try {
-      const refreshResponse = await axios.get<AuthResponse>("api/refresh", {
+      const refreshResponse = await axios.get<AuthResponse>("/api/refresh", {
         headers: { Authorization: `Bearer ${refreshToken}` },
       });
       console.log(

@@ -1,22 +1,26 @@
-import { ChannelDto } from "../channels/ChannelDto";
-import { UserDto } from "../users/dto/user.dto";
+import { ChannelTransfer } from "../channels/channelTypes";
+import { UserTransfer } from "../users/userTypes";
 
-export type Response<T> = { status: "ok" | "error"; data: T; error?: string };
+export type Response<T> = { status: "ok" | "error"; data?: T; error?: string };
 
 export type ClientToServerEvents = {
-  clientJoinsChannel: (channelId: string) => void;
+  clientJoinsChannel: (
+    channelId: string,
+    response: (channel: Response<ChannelTransfer>) => void,
+  ) => void;
   clientLeavesChannel: (channelId: string) => void;
   clientCreatesChannel: (
     channelData: { name: string },
-    response: (channel: Response<ChannelDto>) => void
+    response: (channel: Response<ChannelTransfer>) => void,
   ) => void;
 };
 
 export type ServerToClientEvents = {
-  userOnline: (userData: UserDto) => void;
-  syncState: (data: { usersOnline: UserDto[] }) => void;
-  userOffline: (userData: { userId: number; socketId: string }) => void;
-  channelCreated: (channel: ChannelDto) => void;
-  channelUpdated: (channel: ChannelDto) => void;
-  channelRemoved: (channelId: string) => void;
+  userOnline: (userData: UserTransfer) => void;
+  syncState: (data: { usersOnline: UserTransfer[]; channels: ChannelTransfer[] }) => void;
+  userUpdated: (user: UserTransfer) => void;
+  userOffline: (user: UserTransfer) => void;
+  channelCreated: (channel: ChannelTransfer) => void;
+  channelUpdated: (channel: ChannelTransfer) => void;
+  channelRemoved: (channel: ChannelTransfer) => void;
 };

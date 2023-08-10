@@ -30,9 +30,8 @@ const Login: FC = () => {
           }}
           onSubmit={async (values) => {
             try {
-              console.log(values);
               await login(values);
-              navigate("/main", { replace: true });
+              navigate("/", { replace: true });
             } catch (error) {
               setLoginError((error as object).toString());
               console.error(error);
