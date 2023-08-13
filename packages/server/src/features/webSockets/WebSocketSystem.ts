@@ -74,12 +74,15 @@ export class WebSocketSystem {
 
     this._channelsRealtimeState.emitter.on("channelAdded", (channel) => {
       this._socketServer.emit("channelCreated", channelDataToTransfer(channel));
+      this.logger.log(`[WebSocketSystem]: channelCreated: '${channel.name}'`);
     });
     this._channelsRealtimeState.emitter.on("channelUpdated", (channel) => {
       this._socketServer.emit("channelUpdated", channelDataToTransfer(channel));
+      this.logger.log(`[WebSocketSystem]: channelUpdated: '${channel.name}'`);
     });
     this._channelsRealtimeState.emitter.on("channelRemoved", (channel) => {
       this._socketServer.emit("channelRemoved", channelDataToTransfer(channel));
+      this.logger.log(`[WebSocketSystem]: channelRemoved: '${channel.name}'`);
     });
 
     this._socketServer.on("connection", async (socket: Socket<CTS, STC>) => {
@@ -102,10 +105,8 @@ export class WebSocketSystem {
           name,
           ownerId: user.id,
         });
-        response({
-          data: channelDataToTransfer(channel),
-          status: "ok",
-        });
+        response({ data: channelDataToTransfer(channel), status: "ok" });
+        this.logger.log(`[WebSocketSystem]: user '${currentUserOnline.user.name}' creates channel '${channel.name}'`);
       });
 
       socket.on("clientJoinsChannel", (channelId, response) => {
@@ -122,7 +123,9 @@ export class WebSocketSystem {
 
           this._usersRealtimeState.setChannel(user.id, channelId);
           response({ status: "ok", data: channelDataToTransfer(channel) });
-        } else response({ status: "error", error: "no channel" });
+        } else {
+          response({ status: "error", error: "no channel" });
+        }
       });
 
       socket.on("clientLeavesChannel", () => {

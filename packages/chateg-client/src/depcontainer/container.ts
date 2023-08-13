@@ -8,14 +8,10 @@ import { UsersRealtimeSystem } from "../features/users/UsersRealtimeSystem";
 import { ChannelsRealtimeSystem } from "../features/channels/ChannelsRealtimeSystem";
 import { REFRESH_TOKEN_STORAGE_KEY } from "../config/config";
 import { GeneralStore } from "../features/store/GeneralStore";
-import { GeneralRealtimeSystem } from "../features/store/GeneralRealtimeSystem";
+import { SynchronizationRealtimeSystem } from "../features/webSockets/SynchronizationRealtimeSystem";
 
 export const bootstrap = () => {
-  const authStore = new AuthStore(
-    undefined,
-    localStorage,
-    REFRESH_TOKEN_STORAGE_KEY
-  );
+  const authStore = new AuthStore(undefined, localStorage, REFRESH_TOKEN_STORAGE_KEY);
   const store = new GeneralStore();
 
   const httpClient = new HttpClient("/api", authStore);
@@ -23,19 +19,19 @@ export const bootstrap = () => {
     httpClient,
     authStore,
     localStorage,
-    REFRESH_TOKEN_STORAGE_KEY
+    REFRESH_TOKEN_STORAGE_KEY,
   );
 
   const webSocketConnection = new WebsocketConnection("/");
 
-  const generalRealtimeSystem = new GeneralRealtimeSystem(store);
+  const syncRealtimeSystem = new SynchronizationRealtimeSystem(store);
   const userRealtimeSystem = new UsersRealtimeSystem(store);
   const channelsRealtimeSystem = new ChannelsRealtimeSystem(store);
 
   const realtimeService = new RealtimeService(
-    generalRealtimeSystem,
     userRealtimeSystem,
-    channelsRealtimeSystem
+    channelsRealtimeSystem,
+    syncRealtimeSystem,
   );
 
   const socketQuerySystem = new SocketQuerySystem(store);

@@ -11,12 +11,7 @@ const VideoRoomsList: FC = () => {
         <ul>
           {channels.map(({ id, name, members, ownerId }) => (
             <li key={id}>
-              <VideoRoomItem
-                roomName={name}
-                roomId={id}
-                ownerId={ownerId}
-                members={members}
-              />
+              <VideoRoomItem roomName={name} roomId={id} ownerId={ownerId} members={members} />
             </li>
           ))}
         </ul>

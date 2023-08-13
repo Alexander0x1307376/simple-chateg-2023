@@ -1,49 +1,40 @@
 import { Socket } from "socket.io-client";
 import {
   ClientToServerEvents as CTS,
+  Response,
   ServerToClientEvents as STC,
 } from "@simple-chateg-2023/server/src/features/webSockets/webSocketEvents";
 import { BaseEmitter } from "../webSockets/BaseEmitter";
-import { GeneralStore } from "../store/GeneralStore";
 import { ChannelTransfer } from "@simple-chateg-2023/server/src/features/channels/channelTypes";
+import { socketEmitWithAck } from "../utils/socketEmitAck";
 
 // Связан с ChannelsRealtimeSystem на сервере
 
 export class ChannelsSocketEmitter extends BaseEmitter {
-  constructor(
-    protected socket: Socket<STC, CTS>,
-    private store: GeneralStore,
-  ) {
+  constructor(protected socket: Socket<STC, CTS>) {
     super(socket);
   }
-
-  createChannel(name: string) {
-    return new Promise<ChannelTransfer>((resolve, reject) => {
-      this.socket.emit("clientCreatesChannel", { name }, ({ data, status, error }) => {
-        if (status === "ok" && data) {
-          this.store.upsertChannel(data);
-          resolve(data);
-        } else if (status === "error" && error) {
-          reject(error);
-        } else reject("????");
-      });
-    });
+  async createChannel(name: string): Promise<Response<ChannelTransfer>> {
+    const response = await socketEmitWithAck<{ name: string }, ChannelTransfer>(
+      this.socket,
+      "clientCreatesChannel",
+      { name },
+    );
+    console.log(`[ChannelsSocketEmitter]:createChannel: status: ${response.status}`);
+    return response;
   }
 
-  joinChannel(channelId: string) {
-    return new Promise<ChannelTransfer>((resolve, reject) => {
-      this.socket.emit("clientJoinsChannel", channelId, ({ data, status, error }) => {
-        if (status === "ok" && data) {
-          this.store.upsertChannel(data);
-          resolve(data);
-        } else if (status === "error" && error) {
-          reject(error);
-        }
-      });
-    });
+  async joinChannel(channelId: string): Promise<Response<ChannelTransfer>> {
+    const response = await socketEmitWithAck<string, ChannelTransfer>(
+      this.socket,
+      "clientJoinsChannel",
+      channelId,
+    );
+    console.log(`[ChannelsSocketEmitter]:joinChannel: status: ${response.status}`);
+    return response;
   }
 
-  leaveChannel(channelId: string) {
+  leaveChannel(channelId: string): void {
     this.socket.emit("clientLeavesChannel", channelId);
   }
 }

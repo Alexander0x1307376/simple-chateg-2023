@@ -36,10 +36,14 @@ const Home: FC = () => {
 
   const handleCreateChannel = async (values: { name: string }) => {
     console.log("handleCreateChannel!");
-    const result = await channelEmitter.createChannel(values.name);
-    console.log("RESULT", result);
-    setIsCreateChannelModalVisible(false);
-    navigate(result.id);
+    try {
+      const result = await channelEmitter.createChannel(values.name);
+      console.log("RESULT", result);
+      setIsCreateChannelModalVisible(false);
+      navigate(result.data!.id);
+    } catch (e) {
+      console.log("handleCreateChannel ERROR", e);
+    }
   };
 
   const handleUserClick = () => {

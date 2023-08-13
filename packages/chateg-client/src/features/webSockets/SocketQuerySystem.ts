@@ -14,7 +14,7 @@ export class SocketQuerySystem extends BaseStore<Emitters | undefined> {
 
   initEmitters(socket: Socket) {
     const emitters = {
-      channelEmitter: new ChannelsSocketEmitter(socket, this.generalStore),
+      channelEmitter: new ChannelsSocketEmitter(socket),
     };
 
     this.set(emitters);

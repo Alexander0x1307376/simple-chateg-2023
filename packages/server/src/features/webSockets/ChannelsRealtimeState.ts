@@ -51,21 +51,25 @@ export class ChannelsRealtimeState {
 
   private handleWatchMembers(channel: ChannelData) {
     if (!channel.members.size) {
-      this.logger.log(
-        `[ChannelsRealtimeState]: no users in ${channel.name}. Set the channel for deletion...`,
-      );
-
-      const timer = setTimeout(() => {
-        this.logger.log(`[ChannelsRealtimeState]: channel ${channel.name} has deleted`);
-        this.removeChannel(channel.id);
-        this.delayedRemoveTimers.delete(channel.id);
-      }, this.delayedRemoveTime);
-
-      this.delayedRemoveTimers.set(channel.id, timer);
+      this.delayedChannelRemove(channel);
     } else if (channel.members.size && this.delayedRemoveTimers.has(channel.id)) {
-      // this.logger.log("В канале, отмеченном на удаление, появились пользователи. Удаление отменяется");
-      this.logger.log(`[ChannelsRealtimeState]: deleting ${channel.name} is canceled`);
-      const timeout = this.delayedRemoveTimers.get(channel.id);
+      this.cancelDelayedChannelRemove(channel);
+    }
+  }
+
+  private delayedChannelRemove(channel: ChannelData) {
+    const timer = setTimeout(() => {
+      this.logger.log(`[ChannelsRealtimeState]: channel ${channel.name} has deleted`);
+      this.removeChannel(channel.id);
+      this.delayedRemoveTimers.delete(channel.id);
+    }, this.delayedRemoveTime);
+    this.delayedRemoveTimers.set(channel.id, timer);
+  }
+
+  private cancelDelayedChannelRemove(channel: ChannelData) {
+    this.logger.log(`[ChannelsRealtimeState]: deleting ${channel.name} is canceled`);
+    const timeout = this.delayedRemoveTimers.get(channel.id);
+    if (timeout) {
       clearTimeout(timeout);
       this.delayedRemoveTimers.delete(channel.id);
     }
