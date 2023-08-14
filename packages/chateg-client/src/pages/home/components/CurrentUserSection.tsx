@@ -3,6 +3,7 @@ import IconedButton from "../../../components/controls/IconedButton";
 import {
   IoMicOutline,
   IoSettingsOutline,
+  IoVideocamOffOutline,
   IoVolumeMuteOutline,
 } from "react-icons/io5";
 import type { IconType } from "react-icons";
@@ -23,6 +24,11 @@ const CurrentUserSection: FC = () => {
             size="1.4rem"
             icon={IoMicOutline as IconType}
             // icon={IoMicOffOutline}
+          />
+          <IconedButton
+            size="1.4rem"
+            icon={IoVideocamOffOutline as IconType}
+            // icon={IoVideocamOutline}
           />
           <IconedButton
             size="1.4rem"

@@ -11,6 +11,7 @@ import StoreContextProvider from "./features/store/storeContext";
 import SocketEmitterProvider from "./features/webSockets/socketEmitterContext";
 import { enableMapSet } from "immer";
 import { bootstrap } from "./depcontainer/container";
+import MediaStreamProvider from "./features/videoStreams/mediaStreamContext";
 
 enableMapSet();
 
@@ -21,6 +22,7 @@ const {
   realtimeService,
   socketQuerySystem,
   authQueryService,
+  mediaStreamService,
   store,
 } = bootstrap();
 
@@ -108,7 +110,9 @@ const App: FC = () => {
       <AuthProvider authStore={authStore} authQueryService={authQueryService}>
         <StoreContextProvider generalStore={store}>
           <SocketEmitterProvider socketQuerySystem={socketQuerySystem}>
-            <RouterProvider router={router} />
+            <MediaStreamProvider mediaStreamService={mediaStreamService}>
+              <RouterProvider router={router} />
+            </MediaStreamProvider>
           </SocketEmitterProvider>
         </StoreContextProvider>
       </AuthProvider>

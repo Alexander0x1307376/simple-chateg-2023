@@ -9,6 +9,7 @@ import { ChannelsRealtimeSystem } from "../features/channels/ChannelsRealtimeSys
 import { REFRESH_TOKEN_STORAGE_KEY } from "../config/config";
 import { GeneralStore } from "../features/store/GeneralStore";
 import { SynchronizationRealtimeSystem } from "../features/webSockets/SynchronizationRealtimeSystem";
+import { MediaStreamService } from "../features/videoStreams/MediaStreamService";
 
 export const bootstrap = () => {
   const authStore = new AuthStore(undefined, localStorage, REFRESH_TOKEN_STORAGE_KEY);
@@ -36,6 +37,8 @@ export const bootstrap = () => {
 
   const socketQuerySystem = new SocketQuerySystem(store);
 
+  const mediaStreamService = new MediaStreamService();
+
   return {
     authStore,
     store,
@@ -46,5 +49,6 @@ export const bootstrap = () => {
     channelsRealtimeSystem,
     realtimeService,
     socketQuerySystem,
+    mediaStreamService,
   };
 };
