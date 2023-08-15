@@ -1,5 +1,5 @@
 import { EventEmitter } from "../eventEmitter/EventEmitter";
-import { UserTransfer } from "../users/userTypes";
+import { UserTransfer } from "./userTypes";
 
 export type UserData = {
   user: {

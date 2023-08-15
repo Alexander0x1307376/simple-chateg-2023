@@ -8,11 +8,11 @@ import { getTokenFromHeader } from "../../utils/getTokenFromHeader";
 import { NOT_AUTHORIZED } from "./webSocketErrorMessages";
 import { UsersService } from "../users/UsersService";
 import { UserTransfer } from "../users/userTypes";
-import { UsersRealtimeState } from "./UsersRealtimeState";
-import { ChannelsRealtimeState } from "./ChannelsRealtimeState";
+import { UsersRealtimeState } from "../users/UsersRealtimeState";
+import { ChannelsRealtimeState } from "../channels/ChannelsRealtimeState";
 import { EventEmitter } from "../eventEmitter/EventEmitter";
-import { UsersRealtimeStateBuilder } from "./UsersRealtimeStateBuilder";
-import { ChannelsRealtimeStateBuilder } from "./ChannelsRealtimeStateBuilder";
+import { UsersRealtimeStateBuilder } from "../users/UsersRealtimeStateBuilder";
+import { ChannelsRealtimeStateBuilder } from "../channels/ChannelsRealtimeStateBuilder";
 import { channelDataToTransfer, userDataToTransfer } from "./utils";
 
 export class WebSocketSystem {

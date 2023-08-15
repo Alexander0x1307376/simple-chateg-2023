@@ -1,7 +1,7 @@
 import { EventEmitter } from "../eventEmitter/EventEmitter";
 import { LoggerService } from "../logger/LoggerService";
 import { ChannelData, ChannelsRealtimeState, ChannelsRealtimeStateEvents } from "./ChannelsRealtimeState";
-import { UserData, UsersRealtimeState, UsersRealtimeStateEvents } from "./UsersRealtimeState";
+import { UserData, UsersRealtimeState, UsersRealtimeStateEvents } from "../users/UsersRealtimeState";
 
 // jest.useFakeTimers();
 

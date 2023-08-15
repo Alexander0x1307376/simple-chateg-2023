@@ -1,7 +1,7 @@
 import { EventEmitter } from "../eventEmitter/EventEmitter";
 import { ILogger } from "../logger/ILogger";
 import { ChannelsRealtimeState } from "./ChannelsRealtimeState";
-import { UsersRealtimeState } from "./UsersRealtimeState";
+import { UsersRealtimeState } from "../users/UsersRealtimeState";
 
 export class ChannelsRealtimeStateBuilder {
   static build(usersRealtimeState: UsersRealtimeState, delayedRemoveTime: number, logger: ILogger) {

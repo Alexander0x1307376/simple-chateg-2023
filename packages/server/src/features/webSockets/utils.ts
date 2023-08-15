@@ -1,7 +1,7 @@
 import { ChannelTransfer } from "../channels/channelTypes";
 import { UserTransfer } from "../users/userTypes";
-import { ChannelData } from "./ChannelsRealtimeState";
-import { UserData } from "./UsersRealtimeState";
+import { ChannelData } from "../channels/ChannelsRealtimeState";
+import { UserData } from "../users/UsersRealtimeState";
 
 export const channelDataToTransfer = (channelData: ChannelData): ChannelTransfer => ({
   id: channelData.id,

@@ -1,7 +1,7 @@
-import { ChannelTransfer } from "../channels/channelTypes";
+import { ChannelTransfer } from "./channelTypes";
 import { EventEmitter } from "../eventEmitter/EventEmitter";
 import { ILogger } from "../logger/ILogger";
-import { UserData, UsersRealtimeState } from "./UsersRealtimeState";
+import { UserData, UsersRealtimeState } from "../users/UsersRealtimeState";
 
 export type ChannelData = {
   id: string;
