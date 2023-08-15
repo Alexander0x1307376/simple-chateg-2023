@@ -2,13 +2,14 @@ import { FC, useEffect, useState } from "react";
 import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
 import Ava from "../../../components/common/Ava";
 import { useAuth } from "../../../features/auth/useAuth";
+import { IoMicOffOutline, IoVideocamOffOutline } from "react-icons/io5";
 
-const videoCalls = Array.from({ length: 13 }, (_, index) => ({ id: index }));
+const videoCalls = Array.from({ length: 6 }, (_, index) => ({ id: index }));
 
 const VideoSection: FC = () => {
   const { authData } = useAuth();
 
-  const { mediaStreamService } = useMediaStream();
+  const { mediaStreamService, streamData } = useMediaStream();
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>();
   const [thisStream, setThisStream] = useState<MediaStream | null>();
 
@@ -32,9 +33,14 @@ const VideoSection: FC = () => {
 
   return (
     <div className="flex rounded-lg flex-wrap justify-center">
-      <div className="mx-2 h-40 w-60 flex items-center justify-center my-2 space-x-2 bg-slate-600">
-        {!isThisStreamLoading && thisStream ? (
-          <video className="h-full" autoPlay muted ref={setVideoElement} />
+      <div className="mx-2 h-40 w-60 my-2 flex items-center justify-center space-x-2 bg-slate-600">
+        {!isThisStreamLoading && thisStream && streamData.isVideoOn ? (
+          <div className="relative flex items-center justify-center h-full w-full">
+            <video className="h-full" autoPlay muted ref={setVideoElement} />
+            <div className="absolute right-2 bottom-2">
+              {!streamData.isVoiceOn && <IoMicOffOutline size="1.5rem" />}
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col items-center space-y-4">
             <Ava
@@ -42,7 +48,19 @@ const VideoSection: FC = () => {
               url={authData?.userData.avaUrl}
               size="3rem"
             />
-            <span>{authData?.userData.name || "undefined!"}</span>
+            <div className="flex items-center space-x-2">
+              <span>{authData?.userData.name || "undefined!"}</span>
+              {!streamData.isVideoOn && (
+                <span>
+                  <IoVideocamOffOutline size="1.5rem" />
+                </span>
+              )}
+              {!streamData.isVoiceOn && (
+                <span>
+                  <IoMicOffOutline size="1.5rem" />
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>

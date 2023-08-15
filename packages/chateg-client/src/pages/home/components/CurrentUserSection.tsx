@@ -1,17 +1,34 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import IconedButton from "../../../components/controls/IconedButton";
 import {
+  IoMicOffOutline,
   IoMicOutline,
   IoSettingsOutline,
   IoVideocamOffOutline,
+  IoVideocamOutline,
+  IoVolumeHighOutline,
   IoVolumeMuteOutline,
 } from "react-icons/io5";
 import type { IconType } from "react-icons";
 import { useAuth } from "../../../features/auth/useAuth";
 import UserItem from "./UserItem";
+import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
 
 const CurrentUserSection: FC = () => {
   const { authData } = useAuth();
+  const { mediaStreamService, streamData } = useMediaStream();
+
+  const [isVolumeOn, setIsVolumeOn] = useState<boolean>(true);
+
+  const handleToggleMicrophone = () => {
+    mediaStreamService.toggleVoice();
+  };
+  const handleToggleWebcamera = () => {
+    mediaStreamService.toggleVideo();
+  };
+  const handleToggleVolume = () => {
+    setIsVolumeOn((prev) => !prev);
+  };
 
   return (
     <div className="flex flex-col items-stretch bg-slate-700">
@@ -20,20 +37,23 @@ const CurrentUserSection: FC = () => {
           {authData?.userData && <UserItem user={authData?.userData} />}
         </div>
         <div className="flex justify-end pr-2">
+          {/* Кнопа микрофона */}
           <IconedButton
+            onClick={handleToggleMicrophone}
             size="1.4rem"
-            icon={IoMicOutline as IconType}
-            // icon={IoMicOffOutline}
+            icon={(streamData?.isVoiceOn ? IoMicOutline : IoMicOffOutline) as IconType}
           />
+          {/* Кнопа вебки */}
           <IconedButton
+            onClick={handleToggleWebcamera}
             size="1.4rem"
-            icon={IoVideocamOffOutline as IconType}
-            // icon={IoVideocamOutline}
+            icon={(streamData?.isVideoOn ? IoVideocamOutline : IoVideocamOffOutline) as IconType}
           />
+          {/* Кнопа звука */}
           <IconedButton
+            onClick={handleToggleVolume}
             size="1.4rem"
-            icon={IoVolumeMuteOutline as IconType}
-            // icon={IoVolumeHighOutline}
+            icon={(isVolumeOn ? IoVolumeHighOutline : IoVolumeMuteOutline) as IconType}
           />
           <IconedButton size="1.4rem" icon={IoSettingsOutline as IconType} />
         </div>
