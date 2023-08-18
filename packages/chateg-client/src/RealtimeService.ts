@@ -1,18 +1,12 @@
-import { UsersRealtimeSystem } from "./features/users/UsersRealtimeSystem";
-import { ChannelsRealtimeSystem } from "./features/channels/ChannelsRealtimeSystem";
 import { Socket } from "socket.io-client";
-import { SynchronizationRealtimeSystem } from "./features/webSockets/SynchronizationRealtimeSystem";
+import { BaseWebSocketHandler } from "./features/webSockets/BaseWebSocketHandler";
 
 export class RealtimeService {
-  constructor(
-    private usersRealtimeSystem: UsersRealtimeSystem,
-    private channelsRealtimeSystem: ChannelsRealtimeSystem,
-    private syncRealtimeSystem: SynchronizationRealtimeSystem,
-  ) {}
+  constructor(private handlers: BaseWebSocketHandler[]) {}
 
   bindSocket(socket: Socket) {
-    this.syncRealtimeSystem.init(socket);
-    this.usersRealtimeSystem.init(socket);
-    this.channelsRealtimeSystem.init(socket);
+    this.handlers.forEach((handler: BaseWebSocketHandler) => {
+      handler.init(socket);
+    });
   }
 }

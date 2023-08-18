@@ -23,7 +23,8 @@ const {
   socketQuerySystem,
   authQueryService,
   mediaStreamService,
-  store,
+  channelsStore,
+  usersStore,
 } = bootstrap();
 
 authStore.subscribe((authData) => {
@@ -108,7 +109,7 @@ const App: FC = () => {
       onContextMenu={(e) => e.preventDefault()}
     >
       <AuthProvider authStore={authStore} authQueryService={authQueryService}>
-        <StoreContextProvider generalStore={store}>
+        <StoreContextProvider usersStore={usersStore} channelsStore={channelsStore}>
           <SocketEmitterProvider socketQuerySystem={socketQuerySystem}>
             <MediaStreamProvider mediaStreamService={mediaStreamService}>
               <RouterProvider router={router} />

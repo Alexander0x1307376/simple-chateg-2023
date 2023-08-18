@@ -1,13 +1,6 @@
-import {
-  FC,
-  ReactNode,
-  createContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { User, ChannelData } from "../../types/entities";
-import { GeneralStore, State } from "./GeneralStore";
+import { FC, ReactNode, createContext, useEffect, useMemo, useState } from "react";
+import { User, ChannelData, ChannelTransfer } from "../../types/entities";
+import { Store } from "./MegaStore/Store";
 
 export interface IStoreContext {
   users: User[];
@@ -17,45 +10,43 @@ export interface IStoreContext {
 export const StoreContext = createContext<IStoreContext>({} as IStoreContext);
 
 export interface UsersOnlineProviderProps {
-  generalStore: GeneralStore;
+  usersStore: Store<User>;
+  channelsStore: Store<ChannelTransfer>;
   children: ReactNode;
 }
 
 const StoreContextProvider: FC<UsersOnlineProviderProps> = ({
   children,
-  generalStore,
+  usersStore,
+  channelsStore,
 }) => {
-  const [store, setStore] = useState<State>(generalStore.store);
+  const [users, setUsers] = useState<Record<string, User>>(usersStore.data);
+  const [channels, setChannels] = useState<Record<string, ChannelTransfer>>(channelsStore.data);
 
   useEffect(() => {
-    return generalStore.subscribe(setStore);
-  }, [generalStore]);
+    return usersStore.subscribe(setUsers);
+  }, [usersStore]);
+  useEffect(() => {
+    return channelsStore.subscribe(setChannels);
+  }, [channelsStore]);
 
-  const usersArray = useMemo(() => {
-    return store.users.ids.map((userId) => store.users.list[userId]);
-  }, [store]);
+  const usersArray: User[] = useMemo(() => {
+    return Object.values(users);
+  }, [users]);
 
   const channelsArray: ChannelData[] = useMemo(() => {
-    const users = store.users.list;
-    const channels = store.channels.list;
-    const channelIds = store.channels.ids;
-
-    return channelIds.map((channelId) => {
-      const channel = channels[channelId];
-      const members = channel.members.map((userId) => users[userId]);
-      return {
-        id: channel.id,
-        name: channel.name,
-        ownerId: channel.ownerId,
-        members,
-      } as ChannelData;
-    });
-  }, [store]);
+    const channelsList = Object.values(channels);
+    const result: ChannelData[] = channelsList.map((item) => ({
+      id: item.id,
+      name: item.name,
+      ownerId: item.ownerId,
+      members: item.members.map((memberId) => users[memberId.toString()]),
+    }));
+    return result;
+  }, [users, channels]);
 
   return (
-    <StoreContext.Provider
-      value={{ users: usersArray, channels: channelsArray }}
-    >
+    <StoreContext.Provider value={{ users: usersArray, channels: channelsArray }}>
       {children}
     </StoreContext.Provider>
   );

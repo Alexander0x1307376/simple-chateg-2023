@@ -17,3 +17,9 @@ export type ChannelData = {
   ownerId: number;
   members: User[];
 };
+
+export type PeerData = {
+  peerId: string;
+  userId: number;
+  createOffer: boolean;
+};

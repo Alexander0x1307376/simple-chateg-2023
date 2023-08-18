@@ -6,9 +6,12 @@ export abstract class BaseWebSocketHandler {
     this.bindHandlers = this.bindHandlers.bind(this);
   }
 
-  protected bindHandlers<
-    ListenEvents extends Record<string, (...args: any) => void>,
-  >(socket: Socket, handlers: ListenEvents) {
+  abstract init(socket: Socket): void;
+
+  protected bindHandlers<ListenEvents extends Record<string, (...args: any) => void>>(
+    socket: Socket,
+    handlers: ListenEvents,
+  ) {
     for (const key in handlers) {
       const handler = handlers[key];
       if (handler) socket.on(key as string, handler);

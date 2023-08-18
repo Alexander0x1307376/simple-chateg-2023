@@ -17,9 +17,7 @@ export abstract class BaseStore<Data = any> {
   }
 
   protected emit(value: Data) {
-    this.subscriptions.forEach((subscription) =>
-      subscription.call(this, value)
-    );
+    this.subscriptions.forEach((subscription) => subscription.call(this, value));
   }
 
   set(value: Data) {

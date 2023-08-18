@@ -1,14 +1,13 @@
 import { Socket } from "socket.io-client";
 import { BaseStore } from "../store/BaseStore";
 import { ChannelsSocketEmitter } from "../channels/ChannelsSocketEmitter";
-import { GeneralStore } from "../store/GeneralStore";
 
 export type Emitters = {
   channelEmitter: ChannelsSocketEmitter;
 };
 
 export class SocketQuerySystem extends BaseStore<Emitters | undefined> {
-  constructor(protected generalStore: GeneralStore) {
+  constructor() {
     super(undefined);
   }
 

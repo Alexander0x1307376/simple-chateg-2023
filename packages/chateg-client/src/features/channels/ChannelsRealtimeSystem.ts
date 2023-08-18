@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import { ServerToClientEvents } from "@simple-chateg-2023/server/src/features/webSockets/webSocketEvents";
 import { BaseWebSocketHandler } from "../webSockets/BaseWebSocketHandler";
-import { GeneralStore } from "../store/GeneralStore";
+import { ChannelsService } from "./ChannelsService";
 
 type ChannelEvents = Pick<
   ServerToClientEvents,
@@ -9,7 +9,7 @@ type ChannelEvents = Pick<
 >;
 
 export class ChannelsRealtimeSystem extends BaseWebSocketHandler {
-  constructor(private store: GeneralStore) {
+  constructor(private channelsService: ChannelsService) {
     super();
     this.init = this.init.bind(this);
   }
@@ -17,13 +17,13 @@ export class ChannelsRealtimeSystem extends BaseWebSocketHandler {
   init(socket: Socket) {
     this.bindHandlers<ChannelEvents>(socket, {
       channelCreated: (channel) => {
-        this.store.upsertChannel(channel);
+        this.channelsService.upsertChannel(channel);
       },
       channelUpdated: (channel) => {
-        this.store.upsertChannel(channel);
+        this.channelsService.upsertChannel(channel);
       },
       channelRemoved: (channel) => {
-        this.store.removeChannel(channel.id);
+        this.channelsService.removeChannel(channel.id);
       },
     });
   }

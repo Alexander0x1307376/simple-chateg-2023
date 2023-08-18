@@ -14,6 +14,8 @@ import { EventEmitter } from "../eventEmitter/EventEmitter";
 import { UsersRealtimeStateBuilder } from "../users/UsersRealtimeStateBuilder";
 import { ChannelsRealtimeStateBuilder } from "../channels/ChannelsRealtimeStateBuilder";
 import { channelDataToTransfer, userDataToTransfer } from "./utils";
+import { PeerData } from "../p2p/peerTypes";
+import { PeerSocketHandler } from "../p2p/PeerSocketHandler";
 
 export class WebSocketSystem {
   private _socketServer: SocketServer<CTS, STC>;
@@ -62,6 +64,8 @@ export class WebSocketSystem {
   }
 
   init() {
+    const peerSocketHandler = new PeerSocketHandler();
+
     this._usersRealtimeState.emitter.on("userAdded", (user) => {
       this._socketServer.emit("userOnline", userDataToTransfer(user));
     });
@@ -105,23 +109,25 @@ export class WebSocketSystem {
           name,
           ownerId: user.id,
         });
+        socket.join(channel.id);
         response({ data: channelDataToTransfer(channel), status: "ok" });
         this.logger.log(`[WebSocketSystem]: user '${currentUserOnline.user.name}' creates channel '${channel.name}'`);
       });
 
-      socket.on("clientJoinsChannel", (channelId, response) => {
+      socket.on("clientJoinsChannel", async (channelId, response) => {
         const isTheSameChannel = channelId === currentUserOnline.currentChannel;
-
         const channel = this._channelsRealtimeState.addMemberInChannelById(channelId, user.id);
 
         if (channel) {
           this.logger.log(`[WebSocketSystem]: user ${user.name} joins channel ${channel.name}`);
+
           // если попытка зайти в канал, в котором уже есть - не пытаемся снести пользователя из канала
           if (!isTheSameChannel) {
             this._channelsRealtimeState.removeMemberFromChannelById(currentUserOnline.currentChannel, user.id);
           }
-
           this._usersRealtimeState.setChannel(user.id, channelId);
+          peerSocketHandler.handlePeerConnect(socket, currentUserOnline, channel);
+
           response({ status: "ok", data: channelDataToTransfer(channel) });
         } else {
           response({ status: "error", error: "no channel" });
@@ -133,8 +139,19 @@ export class WebSocketSystem {
           currentUserOnline.currentChannel,
           user.id,
         );
-        if (channel) this._usersRealtimeState.clearChannel(user.id);
-        this.logger.log(`[WebSocketSystem]: user ${user.name} leaves channel ${channel.name}`);
+        if (channel) {
+          peerSocketHandler.handlePeerDisconnect(socket, currentUserOnline, channel);
+          this._usersRealtimeState.clearChannel(user.id);
+          socket.leave(channel.id);
+          this.logger.log(`[WebSocketSystem]: user ${user.name} leaves channel ${channel.name}`);
+        }
+      });
+
+      socket.on("peerOffer", (offer) => {
+        socket.to(offer.target).emit("offer", offer);
+      });
+      socket.on("peerAnswer", (answer) => {
+        socket.to(answer.target).emit("answer", answer);
       });
     });
   }
