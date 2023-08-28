@@ -16,15 +16,15 @@ import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
 
 const CurrentUserSection: FC = () => {
   const { authData } = useAuth();
-  const { mediaStreamService, streamData } = useMediaStream();
+  const { toggleVoice, toggleVideo, streamData } = useMediaStream();
 
   const [isVolumeOn, setIsVolumeOn] = useState<boolean>(true);
 
   const handleToggleMicrophone = () => {
-    mediaStreamService.toggleVoice();
+    toggleVoice();
   };
   const handleToggleWebcamera = () => {
-    mediaStreamService.toggleVideo();
+    toggleVideo();
   };
   const handleToggleVolume = () => {
     setIsVolumeOn((prev) => !prev);

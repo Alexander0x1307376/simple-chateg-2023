@@ -87,6 +87,7 @@ const Home: FC = () => {
                 </div>
               </div>
             }
+            footer={<CurrentUserSection />}
           >
             <VideoRoomsList />
           </Sidebar>
@@ -105,7 +106,6 @@ const Home: FC = () => {
                 <h2>Пользователи онлайн: {usersOnline.length}</h2>
               </div>
             }
-            footer={<CurrentUserSection />}
           >
             <ul onContextMenu={handleContextClick}>
               {usersOnline.map((item) => (

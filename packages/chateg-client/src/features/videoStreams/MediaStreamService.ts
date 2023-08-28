@@ -30,29 +30,37 @@ export class MediaStreamService extends BaseStore<StreamData> {
     return this._mediaStream;
   }
 
+  turnOffMediaStream() {
+    if (this._mediaStream) {
+      this._mediaStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+  }
+
   toggleVoice() {
-    if (!this._mediaStream) return;
+    // if (!this._mediaStream) return;
 
     this.update((state) => {
       const newValue = !state.isVoiceOn;
       state.isVoiceOn = newValue;
-      const audioTracks = this._mediaStream!.getAudioTracks();
-      audioTracks.forEach((track) => {
-        track.enabled = newValue;
-      });
+      // const audioTracks = this._mediaStream!.getAudioTracks();
+      // audioTracks.forEach((track) => {
+      //   track.enabled = newValue;
+      // });
     });
   }
 
   toggleVideo() {
-    if (!this._mediaStream) return;
+    // if (!this._mediaStream) return;
 
     this.update((state) => {
       const newValue = !state.isVideoOn;
       state.isVideoOn = newValue;
-      const videoTracks = this._mediaStream!.getVideoTracks();
-      videoTracks.forEach((track) => {
-        track.enabled = newValue;
-      });
+      // const videoTracks = this._mediaStream!.getVideoTracks();
+      // videoTracks.forEach((track) => {
+      //   track.enabled = newValue;
+      // });
     });
   }
 

@@ -1,7 +1,17 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import VideoSection from "../components/VideoSection";
+import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
 
 const MeetingSection: FC = () => {
+  const { startStream, stopStream } = useMediaStream();
+
+  useEffect(() => {
+    startStream();
+    return () => {
+      stopStream();
+    };
+  }, [startStream, stopStream]);
+
   return (
     <div className="h-full flex flex-col">
       <h2 className="grow-0 py-4 px-2">Общий чятег</h2>
