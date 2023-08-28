@@ -3,10 +3,16 @@ import { EventEmitter } from "../../eventEmitter/EventEmitter";
 import { IStore } from "../IStore";
 import { type Draft, produce } from "immer";
 
-export interface IEntityEmitter {
+export interface IEntityEmitterBase {
   onEntityCreated: (callback: (id: string, entity: unknown) => void) => void;
   onEntityUpdated: (callback: (id: string, entity: unknown) => void) => void;
   onEntityRemoved: (callback: (id: string, entity: unknown) => void) => void;
+}
+
+export interface IEntityEmitter<T> extends IEntityEmitterBase {
+  onEntityCreated: (callback: (id: string, entity: T) => void) => void;
+  onEntityUpdated: (callback: (id: string, entity: T) => void) => void;
+  onEntityRemoved: (callback: (id: string, entity: T) => void) => void;
 }
 
 export type StoreEvents<Entity> = {
@@ -22,19 +28,22 @@ export type StoreMethods<Entity> = {
 };
 
 export type DependencyHandler<Entity, State> = {
-  emitter: IEntityEmitter;
+  emitter: IEntityEmitterBase;
   handleCreate?: (id: string, entity: Entity, store: State, methods: StoreMethods<Entity>) => void;
   handleUpdate?: (id: string, entity: Entity, store: State, methods: StoreMethods<Entity>) => void;
   handleRemove?: (id: string, entity: Entity, store: State, methods: StoreMethods<Entity>) => void;
 };
 
-export class Store<Entity> implements IEntityEmitter, IStore<Record<string, Entity>> {
-  private _store: Record<string, Entity>;
+export class Store<Entity> implements IEntityEmitterBase, IStore<Record<string, Entity>> {
+  protected _store: Record<string, Entity>;
   get data() {
     return this._store;
   }
   private _emitter: EventEmitter<StoreEvents<Entity>>;
-  constructor(deps?: DependencyHandler<Entity, Record<string, Entity>>[]) {
+  constructor(
+    deps?: DependencyHandler<Entity, Record<string, Entity>>[],
+    private readonly isImmutable = true,
+  ) {
     this._store = {};
     this._emitter = new EventEmitter();
 
@@ -42,7 +51,6 @@ export class Store<Entity> implements IEntityEmitter, IStore<Record<string, Enti
     this.subscriptions = [];
     this.emit = this.emit.bind(this);
     this.subscribe = this.subscribe.bind(this);
-    // this.set = this.set.bind(this);
 
     this.addEntity = this.addEntity.bind(this);
     this.updateEntity = this.updateEntity.bind(this);
@@ -79,19 +87,26 @@ export class Store<Entity> implements IEntityEmitter, IStore<Record<string, Enti
   }
 
   addEntity(id: string, entity: Entity) {
-    this._store = produce(this._store, (draft) => {
-      draft[id] = entity as Draft<Entity>;
-    });
+    if (this.isImmutable) {
+      this._store = produce(this._store, (draft) => {
+        draft[id] = entity as Draft<Entity>;
+      });
+    } else {
+      this._store[id] = entity;
+    }
     this._emitter.emit("entityCreated", id, entity);
     this.emit(this._store);
   }
   updateEntity(id: string, entity: Entity) {
-    this._store = produce(this._store, (draft) => {
-      draft[id] = entity as Draft<Entity>;
-    });
+    if (this.isImmutable) {
+      this._store = produce(this._store, (draft) => {
+        draft[id] = entity as Draft<Entity>;
+      });
+    } else {
+      this._store[id] = entity;
+    }
     this._emitter.emit("entityUpdated", id, entity);
     this.emit(this._store);
-    console.log("[STORE]:", this._store);
   }
   removeEntity(id: string) {
     const entity = id in this._store ? this._store[id] : undefined;
@@ -99,10 +114,13 @@ export class Store<Entity> implements IEntityEmitter, IStore<Record<string, Enti
       console.warn(`[Store]: no entity with id ${id} in store to remove`);
       return;
     }
-    this._store = produce(this._store, (draft) => {
-      delete draft[id];
-    });
-    console.log("[STORE]:REMOVE", this._store);
+    if (this.isImmutable) {
+      this._store = produce(this._store, (draft) => {
+        delete draft[id];
+      });
+    } else {
+      delete this._store[id];
+    }
     this._emitter.emit("entityRemoved", id, entity);
     this.emit(this._store);
   }
@@ -115,6 +133,15 @@ export class Store<Entity> implements IEntityEmitter, IStore<Record<string, Enti
   }
   onEntityRemoved(callback: (id: string, entity: Entity) => void) {
     this._emitter.on("entityRemoved", callback);
+  }
+  offEntityCreated(callback: (id: string, entity: Entity) => void) {
+    this._emitter.off("entityCreated", callback);
+  }
+  offEntityUpdated(callback: (id: string, entity: Entity) => void) {
+    this._emitter.off("entityUpdated", callback);
+  }
+  offEntityRemoved(callback: (id: string, entity: Entity) => void) {
+    this._emitter.off("entityRemoved", callback);
   }
 
   // IStore implementation

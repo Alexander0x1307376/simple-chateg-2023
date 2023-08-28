@@ -12,6 +12,7 @@ import SocketEmitterProvider from "./features/webSockets/socketEmitterContext";
 import { enableMapSet } from "immer";
 import { bootstrap } from "./depcontainer/container";
 import MediaStreamProvider from "./features/videoStreams/mediaStreamContext";
+import PeersProvider from "./features/peerConnection/peersContext";
 
 enableMapSet();
 
@@ -25,6 +26,7 @@ const {
   mediaStreamService,
   channelsStore,
   usersStore,
+  peerConnections,
 } = bootstrap();
 
 authStore.subscribe((authData) => {
@@ -112,7 +114,9 @@ const App: FC = () => {
         <StoreContextProvider usersStore={usersStore} channelsStore={channelsStore}>
           <SocketEmitterProvider socketQuerySystem={socketQuerySystem}>
             <MediaStreamProvider mediaStreamService={mediaStreamService}>
-              <RouterProvider router={router} />
+              <PeersProvider peerConnections={peerConnections}>
+                <RouterProvider router={router} />
+              </PeersProvider>
             </MediaStreamProvider>
           </SocketEmitterProvider>
         </StoreContextProvider>

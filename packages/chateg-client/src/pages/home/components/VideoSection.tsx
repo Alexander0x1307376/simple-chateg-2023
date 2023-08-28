@@ -1,74 +1,71 @@
-import { FC, useEffect, useState } from "react";
-import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
-import Ava from "../../../components/common/Ava";
+/* eslint-disable jsx-a11y/media-has-caption */
+import { FC, useEffect, useMemo } from "react";
 import { useAuth } from "../../../features/auth/useAuth";
-import { IoMicOffOutline, IoVideocamOffOutline } from "react-icons/io5";
-
-const videoCalls = Array.from({ length: 6 }, (_, index) => ({ id: index }));
+import useStore from "../../../features/store/useStore";
+import { useParams } from "react-router-dom";
+import { usePeers } from "../../../features/peerConnection/usePeers";
+import LocalStream from "./LocalStream";
+import { PeerItem } from "../../../features/peerConnection/PeerConnections";
+import { User } from "../../../types/entities";
 
 const VideoSection: FC = () => {
+  const { channelId } = useParams();
+
   const { authData } = useAuth();
+  const { channels } = useStore();
 
-  const { mediaStreamService, streamData } = useMediaStream();
-  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>();
-  const [thisStream, setThisStream] = useState<MediaStream | null>();
+  const { connections } = usePeers();
 
-  const [isThisStreamLoading, setIsThisStreamLoading] = useState<boolean>(true);
+  const currentChannel = useMemo(() => {
+    if (channelId && channels) return channels.find((channel) => channel.id === channelId);
+    else return undefined;
+  }, [channels, channelId]);
 
-  useEffect(() => {
-    setIsThisStreamLoading(true);
-    mediaStreamService
-      .getMediaStream()
-      .then(setThisStream)
-      .catch((err: { message?: string }) => {
-        console.error(err);
-      })
-      .finally(() => setIsThisStreamLoading(false));
-  }, [mediaStreamService]);
+  const videos: { member: User; peerData: PeerItem }[] = useMemo(() => {
+    if (!(connections && currentChannel && authData)) return [];
 
-  useEffect(() => {
-    if (!(videoElement && thisStream)) return;
-    videoElement.srcObject = thisStream;
-  }, [videoElement, thisStream]);
+    const members = currentChannel.members.filter((member) => member.id !== authData.userData.id);
+    if (members.length !== Object.keys(connections).length) return [];
+
+    const peerList = Object.values(connections);
+    console.log("videos_COUNT", {
+      membersCount: members.length,
+      peersCount: peerList.length,
+    });
+
+    const result = peerList.map((peerData, index) => {
+      const member = members[index];
+      return { member, peerData };
+    });
+
+    console.log("VIDEOS", { connections, members, result });
+
+    return result;
+  }, [connections, currentChannel, authData]);
 
   return (
     <div className="flex rounded-lg flex-wrap justify-center">
-      <div className="mx-2 h-40 w-60 my-2 flex items-center justify-center space-x-2 bg-slate-600">
-        {!isThisStreamLoading && thisStream && streamData.isVideoOn ? (
-          <div className="relative flex items-center justify-center h-full w-full">
-            <video className="h-full" autoPlay muted ref={setVideoElement} />
-            <div className="absolute right-2 bottom-2">
-              {!streamData.isVoiceOn && <IoMicOffOutline size="1.5rem" />}
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center space-y-4">
-            <Ava
-              label={authData?.userData.name || "un"}
-              url={authData?.userData.avaUrl}
-              size="3rem"
+      <LocalStream />
+      {videos.map((item) => {
+        console.log("RENDER_VIDEOS", item);
+
+        return (
+          <div
+            key={item.member.id}
+            className="flex justify-center mx-2 h-40 w-60 my-2 bg-green-900"
+          >
+            <video
+              className="h-full bg-red-950"
+              autoPlay
+              ref={(element) => {
+                if (!element) return;
+                console.log("STREAM!!", item);
+                element.srcObject = item.peerData.streams[0];
+              }}
             />
-            <div className="flex items-center space-x-2">
-              <span>{authData?.userData.name || "undefined!"}</span>
-              {!streamData.isVideoOn && (
-                <span>
-                  <IoVideocamOffOutline size="1.5rem" />
-                </span>
-              )}
-              {!streamData.isVoiceOn && (
-                <span>
-                  <IoMicOffOutline size="1.5rem" />
-                </span>
-              )}
-            </div>
           </div>
-        )}
-      </div>
-      {videoCalls.map((item) => (
-        <div key={item.id} className="mx-2 h-40 w-60 my-2 bg-green-900">
-          {item.id}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

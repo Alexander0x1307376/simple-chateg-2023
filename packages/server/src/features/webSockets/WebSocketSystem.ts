@@ -64,7 +64,11 @@ export class WebSocketSystem {
   }
 
   init() {
-    const peerSocketHandler = new PeerSocketHandler();
+    const peerSocketHandler = new PeerSocketHandler(
+      this._socketServer,
+      this._channelsRealtimeState,
+      this._usersRealtimeState,
+    );
 
     this._usersRealtimeState.emitter.on("userAdded", (user) => {
       this._socketServer.emit("userOnline", userDataToTransfer(user));
@@ -125,7 +129,9 @@ export class WebSocketSystem {
           if (!isTheSameChannel) {
             this._channelsRealtimeState.removeMemberFromChannelById(currentUserOnline.currentChannel, user.id);
           }
+
           this._usersRealtimeState.setChannel(user.id, channelId);
+          socket.join(channel.id);
           peerSocketHandler.handlePeerConnect(socket, currentUserOnline, channel);
 
           response({ status: "ok", data: channelDataToTransfer(channel) });
@@ -140,6 +146,7 @@ export class WebSocketSystem {
           user.id,
         );
         if (channel) {
+          socket.leave(channel.id);
           peerSocketHandler.handlePeerDisconnect(socket, currentUserOnline, channel);
           this._usersRealtimeState.clearChannel(user.id);
           socket.leave(channel.id);
@@ -147,12 +154,7 @@ export class WebSocketSystem {
         }
       });
 
-      socket.on("peerOffer", (offer) => {
-        socket.to(offer.target).emit("offer", offer);
-      });
-      socket.on("peerAnswer", (answer) => {
-        socket.to(answer.target).emit("answer", answer);
-      });
+      peerSocketHandler.bindHandlers(socket, currentUserOnline);
     });
   }
 }

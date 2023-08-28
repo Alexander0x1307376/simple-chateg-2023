@@ -14,6 +14,9 @@ import { ChannelTransfer, User } from "../types/entities";
 import { Store } from "../features/store/MegaStore/Store";
 import { ChannelsService } from "../features/channels/ChannelsService";
 import { SynchronizationService } from "../features/synchronization/SynchronizationService";
+import { PeerRealtimeSystem } from "../features/peerConnection/PeerRealtimeSystem";
+import { PeerService } from "../features/peerConnection/PeerService";
+import { PeerConnections } from "../features/peerConnection/PeerConnections";
 
 export const bootstrap = () => {
   const authStore = new AuthStore(undefined, localStorage, REFRESH_TOKEN_STORAGE_KEY);
@@ -37,8 +40,9 @@ export const bootstrap = () => {
         const userId = parseInt(id);
         for (const key in store) {
           const channel = store[key];
-          if (channel.members.includes(userId)) {
-            channel.members = channel.members.filter((memberId) => memberId !== userId);
+          const memberIndex = channel.members.indexOf(userId);
+          if (memberIndex != -1) {
+            channel.members.splice(memberIndex, 1);
             methods.update(key, channel);
           }
         }
@@ -53,15 +57,20 @@ export const bootstrap = () => {
   const userRealtimeSystem = new UsersRealtimeSystem(usersService);
   const channelsRealtimeSystem = new ChannelsRealtimeSystem(channelsService);
 
+  const mediaStreamService = new MediaStreamService();
+
+  const peerConnections = new PeerConnections(usersStore);
+  const peerService = new PeerService(peerConnections, mediaStreamService);
+  const peerRealtimeSystem = new PeerRealtimeSystem(peerService);
+
   const realtimeService = new RealtimeService([
     userRealtimeSystem,
     channelsRealtimeSystem,
     syncRealtimeSystem,
+    peerRealtimeSystem,
   ]);
 
   const socketQuerySystem = new SocketQuerySystem();
-
-  const mediaStreamService = new MediaStreamService();
 
   return {
     authStore,
@@ -78,5 +87,7 @@ export const bootstrap = () => {
     usersService,
     channelsService,
     synchronizationService,
+    peerRealtimeSystem,
+    peerConnections,
   };
 };

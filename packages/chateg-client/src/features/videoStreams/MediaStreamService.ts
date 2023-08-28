@@ -21,10 +21,12 @@ export class MediaStreamService extends BaseStore<StreamData> {
   }
 
   async getMediaStream(): Promise<MediaStream> {
-    this._mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
+    if (!this._mediaStream) {
+      this._mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+    }
     return this._mediaStream;
   }
 
