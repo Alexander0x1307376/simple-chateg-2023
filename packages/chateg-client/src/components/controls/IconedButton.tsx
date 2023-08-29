@@ -1,5 +1,5 @@
 import React, { MouseEvent } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 
 export interface IconedButtonProps {
   title?: string;
@@ -17,9 +17,11 @@ const IconedButton: React.FC<IconedButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center rounded-full transition-all duration-100 hover:bg-black/50 p-1"
+      className="flex flex-col items-center justify-center rounded-full hover:bg-black/50 p-1 active:translate-y-[1px] transition-transform  duration-75"
     >
-      <Icon size={size} />
+      <div style={{ height: size, width: size }}>
+        <Icon size={size} />
+      </div>
       {title && <span>{title}</span>}
     </button>
   );

@@ -9,7 +9,7 @@ export type ClientToServerEvents = {
     channelId: string,
     response: (channel: Response<ChannelTransfer>) => void,
   ) => Promise<void> | void;
-  clientLeavesChannel: (channelId: string) => Promise<void> | void;
+  clientLeavesChannel: () => Promise<void> | void;
   clientCreatesChannel: (
     channelData: { name: string },
     response: (channel: Response<ChannelTransfer>) => void,

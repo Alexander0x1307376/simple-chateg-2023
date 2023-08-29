@@ -1,16 +1,19 @@
 import { FC, useEffect } from "react";
 import VideoSection from "../components/VideoSection";
 import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
+import { useSocketEmitters } from "../../../features/webSockets/useSoketEmitters";
 
 const MeetingSection: FC = () => {
   const { startStream, stopStream } = useMediaStream();
+  const { channelEmitter } = useSocketEmitters();
 
   useEffect(() => {
     startStream();
     return () => {
       stopStream();
+      channelEmitter.leaveChannel();
     };
-  }, [startStream, stopStream]);
+  }, [channelEmitter, startStream, stopStream]);
 
   return (
     <div className="h-full flex flex-col">

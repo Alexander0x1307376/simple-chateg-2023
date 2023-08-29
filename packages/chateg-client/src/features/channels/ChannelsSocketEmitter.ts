@@ -34,7 +34,7 @@ export class ChannelsSocketEmitter extends BaseEmitter {
     return response;
   }
 
-  leaveChannel(channelId: string): void {
-    this.socket.emit("clientLeavesChannel", channelId);
+  leaveChannel(): void {
+    this.socket.emit("clientLeavesChannel");
   }
 }
