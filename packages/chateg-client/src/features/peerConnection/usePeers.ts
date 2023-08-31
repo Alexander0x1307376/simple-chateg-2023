@@ -1,36 +1,43 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { PeersContext } from "./peersContext";
-import { PeerItem } from "./PeerConnections";
 
-// export const usePeers = () => useContext(PeersContext);
 export const usePeers = () => {
   const { peerConnections } = useContext(PeersContext);
 
-  const [connections, setConnections] = useState<Record<string, PeerItem>>();
+  const [streams, setStreams] = useState<[string, MediaStream[]][]>([]);
 
   useEffect(() => {
-    const unsubscribeSetConnections = peerConnections.subscribe((store) =>
-      setConnections({ ...store }),
-    );
+    const handlePeersRemoved = () => {
+      console.log(`[usePeers]: handlePeersRemoved`);
+      setStreams([]);
+    };
+
+    const handleAddStreams = (peerId: string, streams: MediaStream[]) => {
+      console.log(`[usePeers]: handleAddStreams`, { peerId, streams });
+      setStreams((prev) => {
+        // проверяем, что не добавляем второй стрим
+        const streamIndex = prev.findIndex(([key]) => key === peerId);
+        if (streamIndex !== -1) {
+          prev[streamIndex] = [peerId, streams];
+          return [...prev];
+        } else return [...prev, [peerId, streams]];
+      });
+    };
+
+    const handlePeerRemoved = (peerId: string) => {
+      setStreams((prev) => prev.filter(([key]) => key !== peerId));
+    };
+
+    peerConnections.onAllPeersRemoved(handlePeersRemoved);
+    peerConnections.onStreamsAdded(handleAddStreams);
+    peerConnections.onPeerRemoved(handlePeerRemoved);
 
     return () => {
-      unsubscribeSetConnections();
+      peerConnections.offAllPeersRemoved(handlePeersRemoved);
+      peerConnections.offStreamsAdded(handleAddStreams);
     };
   }, [peerConnections]);
 
-  const getPeerItemByUserId = useCallback(
-    (userId: number) => {
-      if (!connections) return;
-
-      for (const key in connections) {
-        const peerItem = connections[key];
-        if (peerItem.peerData.userId === userId) return peerItem;
-      }
-      console.warn(`[usePeers]:getPeerItemByUserId: no peerData for user with id: ${userId}`);
-    },
-    [connections],
-  );
-
-  return { connections, getPeerItemByUserId };
+  return { streams };
 };

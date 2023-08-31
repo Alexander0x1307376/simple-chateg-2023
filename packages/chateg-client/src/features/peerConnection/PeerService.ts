@@ -23,9 +23,8 @@ export class PeerService {
       iceServers: freeice(),
     });
     this.peerConnections.addPeer(peerData.peerId, {
-      connection: peerConnection,
       peerData,
-      streams: [],
+      connection: peerConnection,
     });
 
     peerConnection.addEventListener("icecandidate", onICECandidate);
@@ -33,7 +32,6 @@ export class PeerService {
       this._trackCount++;
       if (this._trackCount === 2) {
         this._trackCount = 0;
-        console.log("ONTRACK", streams);
         this.peerConnections.addStreams(peerData.peerId, streams as MediaStream[]);
       }
     });
@@ -42,27 +40,27 @@ export class PeerService {
     stream.getTracks().forEach((track) => {
       peerConnection.addTrack(track, stream);
     });
-
-    console.log("PEER_CREATED:", { peerId: peerData.peerId, peerConnection });
-
     if (peerData.createOffer) {
       const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer).then(() => {
-        console.log("SET_LOCAL_DESC:OFFER", { peerId: peerData.peerId });
-      });
+      await peerConnection.setLocalDescription(offer);
       return offer;
     }
     return undefined;
   }
 
   removePeer(peerId: string) {
+    console.log(`[PeerService]:removePeer: ${peerId}`);
     this.peerConnections.removePeer(peerId);
   }
 
+  removeAllPeers() {
+    this.peerConnections.removeAllPeers();
+  }
+
   setICEData(peerId: string, iceCandidate: RTCIceCandidate) {
-    const peerData = this.peerConnections.getPeerData(peerId);
-    if (peerData) {
-      void peerData.connection.addIceCandidate(new RTCIceCandidate(iceCandidate));
+    const peerItem = this.peerConnections.getPeerData(peerId);
+    if (peerItem) {
+      void peerItem.connection.addIceCandidate(new RTCIceCandidate(iceCandidate));
     }
   }
 

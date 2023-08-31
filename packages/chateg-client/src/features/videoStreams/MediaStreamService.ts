@@ -36,6 +36,7 @@ export class MediaStreamService extends BaseStore<StreamData> {
         track.stop();
       });
     }
+    this._mediaStream = undefined;
   }
 
   toggleVoice() {

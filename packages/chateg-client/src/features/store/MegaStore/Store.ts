@@ -39,7 +39,7 @@ export class Store<Entity> implements IEntityEmitterBase, IStore<Record<string, 
   get data() {
     return this._store;
   }
-  private _emitter: EventEmitter<StoreEvents<Entity>>;
+  protected _emitter: EventEmitter<StoreEvents<Entity>>;
   constructor(
     deps?: DependencyHandler<Entity, Record<string, Entity>>[],
     private readonly isImmutable = true,
@@ -121,6 +121,7 @@ export class Store<Entity> implements IEntityEmitterBase, IStore<Record<string, 
     } else {
       delete this._store[id];
     }
+    // console.log(`[Store]:removeEntity: ${id}`);
     this._emitter.emit("entityRemoved", id, entity);
     this.emit(this._store);
   }
@@ -148,7 +149,7 @@ export class Store<Entity> implements IEntityEmitterBase, IStore<Record<string, 
   private subscriptions: ((data: Record<string, Entity>) => void)[];
 
   protected emit(value: Record<string, Entity>) {
-    this.subscriptions.forEach((subscription) => subscription.call(this, value));
+    this.subscriptions.forEach((subscription) => subscription(value));
   }
 
   subscribe(subscription: (value: Record<string, Entity>) => void) {
