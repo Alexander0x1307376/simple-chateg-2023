@@ -3,7 +3,7 @@ import { createBrowserRouter, redirect, RouterProvider } from "react-router-dom"
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
-import MeetingSection from "./pages/home/pages/MeetingSection";
+import MeetingPage from "./pages/home/pages/MeetingPage";
 import AuthProvider from "./features/auth/authContext";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import { Mutex } from "async-mutex";
@@ -73,7 +73,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: ":channelId",
-            element: <MeetingSection />,
+            element: <MeetingPage />,
             loader: async (args) => {
               await refreshMutex.waitForUnlock();
               const emitter = socketQuerySystem.emitters?.channelEmitter;

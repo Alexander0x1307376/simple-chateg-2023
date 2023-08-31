@@ -3,7 +3,7 @@ import VideoSection from "../components/VideoSection";
 import { useMediaStream } from "../../../features/videoStreams/useMediaStream";
 import { useSocketEmitters } from "../../../features/webSockets/useSoketEmitters";
 
-const MeetingSection: FC = () => {
+const MeetingPage: FC = () => {
   const { startStream, stopStream } = useMediaStream();
   const { channelEmitter } = useSocketEmitters();
 
@@ -26,4 +26,4 @@ const MeetingSection: FC = () => {
   );
 };
 
-export default MeetingSection;
+export default MeetingPage;
