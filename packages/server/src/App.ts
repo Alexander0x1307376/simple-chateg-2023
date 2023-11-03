@@ -37,7 +37,7 @@ export class App {
     @inject(TYPES.ExceptionFilter) private exceptionFilter: ExceptionFilter,
     @inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.UsersService) private usersSerivce: UsersService
+    @inject(TYPES.UsersService) private usersSerivce: UsersService,
   ) {
     this.app = express();
     this.port = parseInt(this.environmentService.get("PORT"));
@@ -48,7 +48,7 @@ export class App {
       },
       authService,
       usersSerivce,
-      logger
+      logger,
     );
 
     this.corsOptions = {
@@ -86,9 +86,7 @@ export class App {
 
     this.webSocketSystem.wsServer.listen(this.port, () => {
       // this.app.listen(this.port, () => {
-      this.logger.log(
-        `[App] API сервер запущен на http://localhost:${this.port}`
-      );
+      this.logger.log(`[App] API сервер запущен на http://localhost:${this.port}`);
     });
   }
 }

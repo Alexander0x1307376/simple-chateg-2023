@@ -11,9 +11,9 @@ const VideoSection: FC = () => {
       <LocalStream />
       {streams.map(([peerId, streams]) => {
         return (
-          <div key={peerId} className="flex justify-center mx-2 h-40 w-60 my-2 bg-green-900">
+          <div key={peerId} className="flex justify-center mx-2 h-40 my-2 rounded-lg overflow-clip">
             <video
-              className="h-full bg-red-950"
+              className="h-full"
               autoPlay
               ref={(element) => {
                 if (!element) return;

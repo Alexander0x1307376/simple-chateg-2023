@@ -9,7 +9,7 @@ const LocalStream: FC = () => {
   const { authData } = useAuth();
 
   return (
-    <div className="mx-2 h-40 w-60 my-2 flex items-center justify-center space-x-2 bg-slate-600">
+    <div className="mx-2 h-40 my-2 flex items-center justify-center space-x-2 bg-slate-600 overflow-hidden rounded-lg">
       {!isThisStreamLoading && thisStream && streamData.isVideoOn ? (
         <div className="relative flex items-center justify-center h-full w-full">
           <video className="h-full" autoPlay muted ref={setVideoElement} />
@@ -18,7 +18,7 @@ const LocalStream: FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-col w-[13rem] items-center space-y-4">
           <Ava
             label={authData?.userData.name || "un"}
             url={authData?.userData.avaUrl}
